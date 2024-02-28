@@ -1,9 +1,7 @@
+#include <GL/glew.h>
 #include <GL/freeglut_std.h>
-#include <GL/glext.h>
-#include <GL/glcorearb.h>
-#include <GLES3/gl32.h>
 #include <vector>
-
+#include <cstdio>
 const int WINDOW_HEIGHT = 600;
 const int WINDOW_WIDTH = 800;
 const int x = 100;
@@ -17,33 +15,36 @@ const GLclampf BACKGROUND_ALPHA = 0.0f;
 GLuint VAO;
 GLuint VBO;
 
-std::vector<GLfloat> cube_vertex_data = {
-    -1.0f,
-    -1.0f,
-    -1.0f,
-    -1.0f,
-    -1.0f,
-    1.0f,
-    -1.0f,
-    1.0f,
-    -1.0f,
-    -1.0f,
-    1.0f,
-    1.0f,
-    1.0f,
-    -1.0f,
-    -1.0f,
-    1.0f,
-    -1.0f,
-    1.0f,
-    1.0f,
-    1.0f,
-    -1.0f,
-    1.0f,
-    1.0f,
-    1.0f,
+GLfloat cube_vertex_data[] = {
+    -1.0f, -1.0f, 0.0f,
+    -1.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f,
+    // -1.0f,
+    // -1.0f,
+    // -1.0f,
+    // -1.0f,
+    // -1.0f,
+    // 1.0f,
+    // -1.0f,
+    // 1.0f,
+    // -1.0f,
+    // -1.0f,
+    // 1.0f,
+    // 1.0f,
+    // 1.0f,
+    // -1.0f,
+    // -1.0f,
+    // 1.0f,
+    // -1.0f,
+    // 1.0f,
+    // 1.0f,
+    // 1.0f,
+    // -1.0f,
+    // 1.0f,
+    // 1.0f,
+    // 1.0f,
 };
-std::vector<unsigned int> cube_index_data = {
+unsigned int cube_index_data[] = {
     1, 2, 3,
     2, 3, 4,
     3, 4, 8,
@@ -59,12 +60,16 @@ std::vector<unsigned int> cube_index_data = {
 
 void RenderCB()
 {
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    glDrawElements(GL_TRIANGLES, cube_index_data.size(), GL_UNSIGNED_INT, (void *)0);
-    
+    glBindBuffer(GL_ARRAY_BUFFER, VAO);
     glEnableVertexAttribArray(0);
-    glBindBuffer
-    
+    glVertexAttribPointer(
+        0, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
+    // glDrawElements(GL_TRIANGLES, cube_index_data.size(), GL_UNSIGNED_INT, (void *)0);
+    glDrawArrays(GL_TRIANGLES, 0, 2);
+    glDisableVertexAttribArray(0);
+
     glutSwapBuffers();
 }
 
@@ -98,32 +103,39 @@ void SpecialCB(int key, int x, int y)
 void CreateVertexArrays()
 {
     glGenBuffers(1, &VAO);
-    glGenBuffers(1, &VBO);
+    // glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VAO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, cube_vertex_data.size() * sizeof(GLfloat), &cube_vertex_data[0], GL_STATIC_DRAW);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, cube_index_data.size() * sizeof(unsigned int), &cube_index_data[0], GL_STATIC_DRAW);
-    glBindVertexArray(VAO);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertex_data), &cube_vertex_data[0], GL_STATIC_DRAW);
+    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, cube_index_data.size() * sizeof(unsigned int), &cube_index_data[0], GL_STATIC_DRAW);
 }
 
 int main(int argc, char *argv[])
 {
     glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA);
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     glutInitWindowPosition(x, y);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA);
 
     glutCreateWindow(WINDOW_NAME);
     glutSetCursor(GLUT_CURSOR_CROSSHAIR);
     glutPostRedisplay();
 
+    glewExperimental = true;
+    if (glewInit() != GLEW_OK)
+    {
+        fprintf(stderr, "Failed to initialize GLEW\n");
+        return -1;
+    }
+
+    glClearColor(BACKGROUND_RED, BACKGROUND_GREEN, BACKGROUND_BLUE, BACKGROUND_ALPHA);
+
+    CreateVertexArrays();
+
     glutDisplayFunc(RenderCB);
     glutKeyboardFunc(KeyboardCB);
     glutSpecialFunc(SpecialCB);
 
-    CreateVertexArrays();
-
-    glClearColor(BACKGROUND_RED, BACKGROUND_GREEN, BACKGROUND_BLUE, BACKGROUND_ALPHA);
     glutMainLoop();
 
     return 0;
