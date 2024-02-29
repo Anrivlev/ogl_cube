@@ -48,6 +48,7 @@ unsigned int cube_index_data[][3] = {
 
 void RenderCB()
 {
+    glUseProgram(shaderProgram);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glBindBuffer(GL_ARRAY_BUFFER, cubeVertexVBO);
@@ -107,13 +108,23 @@ void CompileShaders()
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, (const GLchar **)&vertexShaderSource, 0);
     glCompileShader(vertexShader);
-
     checkShaderCompilation(vertexShader);
+    free(vertexShaderSource);
 
     fragmentShaderSource = filetobuf("shader.fs");
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, (const GLchar **)&vertexShaderSource, 0);
     glCompileShader(fragmentShader);
+    checkShaderCompilation(fragmentShader);
+    free(fragmentShaderSource);
+
+    shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+
+    glBindAttribLocation(shaderProgram, shaderAttribute, "in_Position");
+
+    glLinkProgram(shaderProgram);
 }
 
 void KeyboardCB(unsigned char key, int x, int y)
