@@ -89,6 +89,7 @@ void CompileShaders()
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
 
     glShaderSource(vertexShader, 1, (const GLchar **)&vertexShaderSource, 0);
+    //TODO
 }
 
 void KeyboardCB(unsigned char key, int x, int y)
