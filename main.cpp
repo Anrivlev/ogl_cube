@@ -83,13 +83,37 @@ char *filetobuf(char *file)
     return buf;
 }
 
+void checkShaderCompilation(GLuint &shader)
+{
+    GLint isCompiled;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
+    if (isCompiled == GL_FALSE)
+    {
+        GLint maxLength;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+        GLchar *shaderInfoLog = (char *)malloc(maxLength);
+        glGetShaderInfoLog(vertexShader, maxLength, &maxLength, shaderInfoLog);
+
+        // Надо кидать ошибку или как-то ее обрабатывать
+
+        free(shaderInfoLog);
+        exit(-1);
+    }
+}
+
 void CompileShaders()
 {
     vertexShaderSource = filetobuf("shader.vs");
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
     glShaderSource(vertexShader, 1, (const GLchar **)&vertexShaderSource, 0);
-    //TODO
+    glCompileShader(vertexShader);
+
+    checkShaderCompilation(vertexShader);
+
+    fragmentShaderSource = filetobuf("shader.fs");
+    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, (const GLchar **)&vertexShaderSource, 0);
+    glCompileShader(fragmentShader);
 }
 
 void KeyboardCB(unsigned char key, int x, int y)
