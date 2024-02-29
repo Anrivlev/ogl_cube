@@ -12,62 +12,44 @@ const GLclampf BACKGROUND_GREEN = 0.5f;
 const GLclampf BACKGROUND_BLUE = 0.0f;
 const GLclampf BACKGROUND_ALPHA = 0.0f;
 
-GLuint VAO;
-GLuint VBO;
+GLuint cubeVertexVBO;
+GLuint cubeIndexVBO;
 
-GLfloat cube_vertex_data[] = {
-    -1.0f, -1.0f, 0.0f,
-    -1.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f,
-    // -1.0f,
-    // -1.0f,
-    // -1.0f,
-    // -1.0f,
-    // -1.0f,
-    // 1.0f,
-    // -1.0f,
-    // 1.0f,
-    // -1.0f,
-    // -1.0f,
-    // 1.0f,
-    // 1.0f,
-    // 1.0f,
-    // -1.0f,
-    // -1.0f,
-    // 1.0f,
-    // -1.0f,
-    // 1.0f,
-    // 1.0f,
-    // 1.0f,
-    // -1.0f,
-    // 1.0f,
-    // 1.0f,
-    // 1.0f,
+GLfloat cube_vertex_data[][3] = {
+    {-1.0f, -1.0f, -1.0f},
+    {-1.0f, -1.0f, 1.0f},
+    {-1.0f, 1.0f, -1.0f},
+    {1.0f, 1.0f, 1.0f},
+    {1.0f, -1.0f, -1.0f},
+    {1.0f, -1.0f, 1.0f},
+    {1.0f, 1.0f, -1.0f},
+    {1.0f, 1.0f, 1.0f},
 };
-unsigned int cube_index_data[] = {
-    1, 2, 3,
-    2, 3, 4,
-    3, 4, 8,
-    3, 7, 8,
-    5, 6, 7,
-    6, 7, 8,
-    1, 2, 5,
-    2, 5, 6,
-    2, 4, 8,
-    2, 6, 8,
-    1, 3, 5,
-    3, 5, 7};
+unsigned int cube_index_data[][3] = {
+    {1, 2, 3},
+    {2, 3, 4},
+    {3, 4, 8},
+    {3, 7, 8},
+    {5, 6, 7},
+    {6, 7, 8},
+    {1, 2, 5},
+    {2, 5, 6},
+    {2, 4, 8},
+    {2, 6, 8},
+    {1, 3, 5},
+    {3, 5, 7}};
 
 void RenderCB()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, cubeVertexVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIndexVBO);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(
-        0, 3, GL_FLOAT, GL_FALSE, 0, (void *)0);
-    // glDrawElements(GL_TRIANGLES, cube_index_data.size(), GL_UNSIGNED_INT, (void *)0);
-    glDrawArrays(GL_TRIANGLES, 0, 2);
+        0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    // glDrawArrays(GL_TRIANGLES, 0, (sizeof(cube_vertex_data) / 3 / sizeof(GLfloat)));
+    glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / 3 / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
     glDisableVertexAttribArray(0);
 
     glutSwapBuffers();
@@ -102,12 +84,13 @@ void SpecialCB(int key, int x, int y)
 
 void CreateVertexArrays()
 {
-    glGenBuffers(1, &VAO);
-    // glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VAO);
-    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertex_data), &cube_vertex_data[0], GL_STATIC_DRAW);
-    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, cube_index_data.size() * sizeof(unsigned int), &cube_index_data[0], GL_STATIC_DRAW);
+    glGenBuffers(1, &cubeVertexVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, cubeVertexVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertex_data), cube_vertex_data, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &cubeIndexVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIndexVBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cube_index_data), cube_index_data, GL_STATIC_DRAW);
 }
 
 int main(int argc, char *argv[])
