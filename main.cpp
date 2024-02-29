@@ -2,18 +2,25 @@
 #include <GL/freeglut_std.h>
 #include <vector>
 #include <cstdio>
+
 const int WINDOW_HEIGHT = 600;
 const int WINDOW_WIDTH = 800;
 const int x = 100;
 const int y = 200;
 const char WINDOW_NAME[] = "Rotating cube";
-const GLclampf BACKGROUND_RED = 0.5f;
-const GLclampf BACKGROUND_GREEN = 0.5f;
+const GLclampf BACKGROUND_RED = 0.1f;
+const GLclampf BACKGROUND_GREEN = 0.1f;
 const GLclampf BACKGROUND_BLUE = 0.0f;
 const GLclampf BACKGROUND_ALPHA = 0.0f;
 
 GLuint cubeVertexVBO;
 GLuint cubeIndexVBO;
+
+GLuint vertexShader;
+GLuint fragmentShader;
+GLuint shaderProgram;
+GLchar *vertexShaderSource;
+GLchar *fragmentShaderSource;
 
 GLfloat cube_vertex_data[][3] = {
     {-1.0f, -1.0f, -1.0f},
@@ -53,6 +60,35 @@ void RenderCB()
     glDisableVertexAttribArray(0);
 
     glutSwapBuffers();
+}
+
+char *filetobuf(char *file)
+{
+    FILE *filePointer;
+    long length;
+    char *buf;
+
+    filePointer = fopen(file, "rb");
+    if (!filePointer)
+        return NULL;
+
+    fseek(filePointer, 0, SEEK_END);
+    length = ftell(filePointer);
+    buf = (char *)malloc(length + 1);
+    fseek(filePointer, 0, SEEK_SET);
+    fread(buf, length, 1, filePointer);
+    fclose(filePointer);
+    buf[length] = 0;
+
+    return buf;
+}
+
+void CompileShaders()
+{
+    vertexShaderSource = filetobuf("shader.vs");
+    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+    glShaderSource(vertexShader, 1, (const GLchar **)&vertexShaderSource, 0);
 }
 
 void KeyboardCB(unsigned char key, int x, int y)
