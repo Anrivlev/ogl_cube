@@ -26,36 +26,29 @@ GLchar *vertexShaderSource;
 GLchar *fragmentShaderSource;
 
 GLfloat cube_vertex_data[][3] = {
-    // {-1.0f, -1.0f, -1.0f},
-    // {-1.0f, -1.0f, 1.0f},
-    // {-1.0f, 1.0f, -1.0f},
-    // {1.0f, 1.0f, 1.0f},
-    // {1.0f, -1.0f, -1.0f},
-    // {1.0f, -1.0f, 1.0f},
-    // {1.0f, 1.0f, -1.0f},
-    // {1.0f, 1.0f, 1.0f},
-    {-1.0f, -1.0f, 2.0f},
-    {-1.0f, -1.0f, 1.0f},
-    {-1.0f, 1.0f, 2.0f},
-    {1.0f, 1.0f, 1.0f},
-    {1.0f, -1.0f, 2.0f},
-    {1.0f, -1.0f, 1.0f},
-    {1.0f, 1.0f, 2.0f},
-    {1.0f, 1.0f, 1.0f},
+    {-0.5f, -0.5f, 0.0f},
+    {-0.5f, -0.5f, 0.5f},
+    {-0.5f, 0.5f, 0.0f},
+    {0.5f, 0.5f, 0.5f},
+    {0.5f, -0.5f, 0.0f},
+    {0.5f, -0.5f, 0.5f},
+    {0.5f, 0.5f, 0.0f},
+    {0.5f, 0.5f, 0.5f},
 };
 unsigned int cube_index_data[][3] = {
+    {0, 1, 2},
     {1, 2, 3},
-    {2, 3, 4},
-    {3, 4, 8},
-    {3, 7, 8},
+    {2, 3, 7},
+    {2, 6, 7},
+    {4, 5, 6},
     {5, 6, 7},
-    {6, 7, 8},
-    {1, 2, 5},
-    {2, 5, 6},
-    {2, 4, 8},
-    {2, 6, 8},
+    {0, 1, 4},
     {1, 3, 5},
-    {3, 5, 7}};
+    {1, 3, 7},
+    {1, 5, 7},
+    {0, 2, 4},
+    {2, 4, 6}
+    };
 
 void RenderCB()
 {
@@ -66,13 +59,14 @@ void RenderCB()
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     // glDrawArrays(GL_TRIANGLES, 0, (sizeof(cube_vertex_data) / 3 / sizeof(GLfloat)));
-    GLfloat scale = 0.5;
+    GLfloat scale = 0.1;
     GLfloat matrix[4][4] = {
         {scale, 0.0, 0.0, 0.0},
         {0.0, scale, 0.0, 0.0},
         {0.0, 0.0, scale, 0.0},
-        {0.0, 0.0, 0.0, scale},
+        {0.0, 0.0, 0.0, 1.0},
     };
+    transformMatrix = glGetUniformLocation(shaderProgram, "transformMatrix");
     glUniformMatrix4fv(transformMatrix, 1, GL_FALSE, &matrix[0][0]);
     glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / 3 / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
     glDisableVertexAttribArray(0);
@@ -138,8 +132,6 @@ void CompileShaders()
     shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
-
-    transformMatrix = glGetUniformLocation(shaderProgram, "transformMatrix");
 
     glLinkProgram(shaderProgram);
     glUseProgram(shaderProgram);
