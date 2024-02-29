@@ -12,6 +12,9 @@ const GLclampf BACKGROUND_RED = 0.1f;
 const GLclampf BACKGROUND_GREEN = 0.1f;
 const GLclampf BACKGROUND_BLUE = 0.0f;
 const GLclampf BACKGROUND_ALPHA = 0.0f;
+char VERTEX_SHADER_FILENAME[] = "shader.vs";
+char FRAGMENT_SHADER_FILENAME[] = "shader.fs";
+GLuint transformMatrix;
 
 GLuint cubeVertexVBO;
 GLuint cubeIndexVBO;
@@ -23,13 +26,21 @@ GLchar *vertexShaderSource;
 GLchar *fragmentShaderSource;
 
 GLfloat cube_vertex_data[][3] = {
-    {-1.0f, -1.0f, -1.0f},
+    // {-1.0f, -1.0f, -1.0f},
+    // {-1.0f, -1.0f, 1.0f},
+    // {-1.0f, 1.0f, -1.0f},
+    // {1.0f, 1.0f, 1.0f},
+    // {1.0f, -1.0f, -1.0f},
+    // {1.0f, -1.0f, 1.0f},
+    // {1.0f, 1.0f, -1.0f},
+    // {1.0f, 1.0f, 1.0f},
+    {-1.0f, -1.0f, 2.0f},
     {-1.0f, -1.0f, 1.0f},
-    {-1.0f, 1.0f, -1.0f},
+    {-1.0f, 1.0f, 2.0f},
     {1.0f, 1.0f, 1.0f},
-    {1.0f, -1.0f, -1.0f},
+    {1.0f, -1.0f, 2.0f},
     {1.0f, -1.0f, 1.0f},
-    {1.0f, 1.0f, -1.0f},
+    {1.0f, 1.0f, 2.0f},
     {1.0f, 1.0f, 1.0f},
 };
 unsigned int cube_index_data[][3] = {
@@ -48,15 +59,21 @@ unsigned int cube_index_data[][3] = {
 
 void RenderCB()
 {
-    glUseProgram(shaderProgram);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glBindBuffer(GL_ARRAY_BUFFER, cubeVertexVBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIndexVBO);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(
-        0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     // glDrawArrays(GL_TRIANGLES, 0, (sizeof(cube_vertex_data) / 3 / sizeof(GLfloat)));
+    GLfloat scale = 0.5;
+    GLfloat matrix[4][4] = {
+        {scale, 0.0, 0.0, 0.0},
+        {0.0, scale, 0.0, 0.0},
+        {0.0, 0.0, scale, 0.0},
+        {0.0, 0.0, 0.0, scale},
+    };
+    glUniformMatrix4fv(transformMatrix, 1, GL_FALSE, &matrix[0][0]);
     glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / 3 / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
     glDisableVertexAttribArray(0);
 
@@ -104,14 +121,14 @@ void checkShaderCompilation(GLuint &shader)
 
 void CompileShaders()
 {
-    vertexShaderSource = filetobuf("shader.vs");
+    vertexShaderSource = filetobuf(VERTEX_SHADER_FILENAME);
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, (const GLchar **)&vertexShaderSource, 0);
     glCompileShader(vertexShader);
     checkShaderCompilation(vertexShader);
     free(vertexShaderSource);
 
-    fragmentShaderSource = filetobuf("shader.fs");
+    fragmentShaderSource = filetobuf(FRAGMENT_SHADER_FILENAME);
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, (const GLchar **)&vertexShaderSource, 0);
     glCompileShader(fragmentShader);
@@ -122,9 +139,10 @@ void CompileShaders()
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
 
-    glBindAttribLocation(shaderProgram, shaderAttribute, "in_Position");
+    transformMatrix = glGetUniformLocation(shaderProgram, "transformMatrix");
 
     glLinkProgram(shaderProgram);
+    glUseProgram(shaderProgram);
 }
 
 void KeyboardCB(unsigned char key, int x, int y)
