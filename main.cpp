@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 const int WINDOW_HEIGHT = 600;
 const int WINDOW_WIDTH = 800;
@@ -114,14 +115,24 @@ void AddShader(GLuint &shader, char *file, GLenum shaderType)
     shader = glCreateShader(shaderType);
     std::string shaderSource;
     std::ifstream shaderStream(file, std::ios::in);
-    if(shaderStream.is_open()) {
-        
+    if (shaderStream.is_open())
+    {
+        std::stringstream sstr;
+        sstr << shaderStream.rdbuf();
+        shaderSource = sstr.str();
+        shaderStream.close();
     }
-    
-    glShaderSource(shader, 1, (const GLchar **)shaderSource, 0);
+    else
+    {
+        printf("Impossible to open %s. Are you in the right directory ? Don't forget to read the FAQ !\n", file);
+        getchar();
+        exit(0);
+    }
+
+    char const *shaderSourcePointer = shaderSource.c_str();
+    glShaderSource(shader, 1, &shaderSourcePointer, 0);
     glCompileShader(shader);
     checkShaderCompilation(shader);
-    free(shaderSource);
 }
 
 void CompileShaders()
