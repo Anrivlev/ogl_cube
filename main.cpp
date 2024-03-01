@@ -56,7 +56,7 @@ void RenderCB()
     glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     static float angle = 1.5;
-    static float delta = 0.1;
+    static float delta = 0.01;
     angle += delta;
 
     float matrix[4][4] = {
