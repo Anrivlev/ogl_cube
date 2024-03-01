@@ -18,8 +18,6 @@ GLuint transformMatrix;
 GLuint cubeVBO;
 GLuint cubeIBO;
 
-GLuint vertexShader;
-GLuint fragmentShader;
 GLuint shaderProgram;
 
 GLfloat cube_vertex_data[][3] = {
@@ -99,7 +97,7 @@ void checkShaderCompilation(GLuint &shader)
         GLint maxLength;
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
         GLchar *shaderInfoLog = (char *)malloc(maxLength);
-        glGetShaderInfoLog(vertexShader, maxLength, &maxLength, shaderInfoLog);
+        glGetShaderInfoLog(shader, maxLength, &maxLength, shaderInfoLog);
 
         // Надо кидать ошибку или как-то ее обрабатывать
 
@@ -108,7 +106,7 @@ void checkShaderCompilation(GLuint &shader)
     }
 }
 
-void AddShader(GLuint shader, char *file, GLenum shaderType)
+void AddShader(GLuint &shader, char *file, GLenum shaderType)
 {
     GLchar *shaderSource = filetobuf(file);
     shader = glCreateShader(shaderType);
@@ -120,6 +118,8 @@ void AddShader(GLuint shader, char *file, GLenum shaderType)
 
 void CompileShaders()
 {
+    GLuint vertexShader;
+    GLuint fragmentShader;
     AddShader(vertexShader, VERTEX_SHADER_FILENAME, GL_VERTEX_SHADER);
     AddShader(fragmentShader, FRAGMENT_SHADER_FILENAME, GL_FRAGMENT_SHADER);
 
