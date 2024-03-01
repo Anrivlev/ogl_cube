@@ -26,14 +26,17 @@ GLchar *vertexShaderSource;
 GLchar *fragmentShaderSource;
 
 GLfloat cube_vertex_data[][3] = {
-    {-0.5f, -0.5f, 0.0f},
     {-0.5f, -0.5f, 0.5f},
-    {-0.5f, 0.5f, 0.0f},
+    {-0.5f, 0.5f, 0.5f},
     {0.5f, 0.5f, 0.5f},
-    {0.5f, -0.5f, 0.0f},
-    {0.5f, -0.5f, 0.5f},
-    {0.5f, 0.5f, 0.0f},
-    {0.5f, 0.5f, 0.5f},
+    // {-0.5f, -0.5f, 0.0f},
+    // {-0.5f, -0.5f, 0.5f},
+    // {-0.5f, 0.5f, 0.0f},
+    // {0.5f, 0.5f, 0.5f},
+    // {0.5f, -0.5f, 0.0f},
+    // {0.5f, -0.5f, 0.5f},
+    // {0.5f, 0.5f, 0.0f},
+    // {0.5f, 0.5f, 0.5f},
 };
 unsigned int cube_index_data[][3] = {
     {0, 1, 2},
@@ -58,7 +61,7 @@ void RenderCB()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIndexVBO);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    // glDrawArrays(GL_TRIANGLES, 0, (sizeof(cube_vertex_data) / 3 / sizeof(GLfloat)));
+    glDrawArrays(GL_TRIANGLES, 0, (sizeof(cube_vertex_data) / 3 / sizeof(GLfloat)));
     GLfloat scale = 0.1;
     GLfloat matrix[4][4] = {
         {scale, 0.0, 0.0, 0.0},
