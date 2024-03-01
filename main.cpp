@@ -1,6 +1,9 @@
 #include <GL/glew.h>
 #include <GL/freeglut_std.h>
 #include <cstdio>
+#include <string>
+#include <iostream>
+#include <fstream>
 
 const int WINDOW_HEIGHT = 600;
 const int WINDOW_WIDTH = 800;
@@ -108,8 +111,13 @@ void checkShaderCompilation(GLuint &shader)
 
 void AddShader(GLuint &shader, char *file, GLenum shaderType)
 {
-    GLchar *shaderSource = filetobuf(file);
     shader = glCreateShader(shaderType);
+    std::string shaderSource;
+    std::ifstream shaderStream(file, std::ios::in);
+    if(shaderStream.is_open()) {
+        
+    }
+    
     glShaderSource(shader, 1, (const GLchar **)shaderSource, 0);
     glCompileShader(shader);
     checkShaderCompilation(shader);
