@@ -54,14 +54,14 @@ void RenderCB()
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    GLfloat scale = 0.5;
+    GLfloat scale = 1.5;
     GLfloat matrix[4][4] = {
         {scale, 0.0, 0.0, 0.0},
         {0.0, scale, 0.0, 0.0},
         {0.0, 0.0, scale, 0.0},
         {0.0, 0.0, 0.0, 1.0},
     };
-    // glUniformMatrix4fv(transformMatrix, 1, GL_FALSE, &matrix[0][0]);
+    glUniformMatrix4fv(transformMatrix, 1, GL_FALSE, &matrix[0][0]);
     // glDrawArrays(GL_TRIANGLES, 0, (sizeof(cube_vertex_data) / 3 / sizeof(GLfloat)));
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
     glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
@@ -69,27 +69,6 @@ void RenderCB()
     glDisableVertexAttribArray(0);
 
     glutSwapBuffers();
-}
-
-char *filetobuf(char *file)
-{
-    FILE *filePointer;
-    long length;
-    char *buf;
-
-    filePointer = fopen(file, "rb");
-    if (!filePointer)
-        return NULL;
-
-    fseek(filePointer, 0, SEEK_END);
-    length = ftell(filePointer);
-    buf = (char *)malloc(length + 1);
-    fseek(filePointer, 0, SEEK_SET);
-    fread(buf, length, 1, filePointer);
-    fclose(filePointer);
-    buf[length] = 0;
-
-    return buf;
 }
 
 void checkShaderCompilation(GLuint &shader)
@@ -146,7 +125,7 @@ void CompileShaders()
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
-    // transformMatrix = glGetUniformLocation(shaderProgram, "transformMatrix");
+    transformMatrix = glGetUniformLocation(shaderProgram, "transformMatrix");
     glUseProgram(shaderProgram);
 }
 
