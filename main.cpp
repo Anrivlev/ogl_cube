@@ -1,6 +1,5 @@
 #include <GL/glew.h>
 #include <GL/freeglut_std.h>
-#include <vector>
 #include <cstdio>
 
 const int WINDOW_HEIGHT = 600;
@@ -22,8 +21,6 @@ GLuint cubeIndexVBO;
 GLuint vertexShader;
 GLuint fragmentShader;
 GLuint shaderProgram;
-GLchar *vertexShaderSource;
-GLchar *fragmentShaderSource;
 
 GLfloat cube_vertex_data[][3] = {
     {-0.5f, -0.5f, 0.5f},
@@ -38,20 +35,20 @@ GLfloat cube_vertex_data[][3] = {
     // {0.5f, 0.5f, 0.0f},
     // {0.5f, 0.5f, 0.5f},
 };
-unsigned int cube_index_data[][3] = {
+GLuint cube_index_data[][3] = {
     {0, 1, 2},
-    {1, 2, 3},
-    {2, 3, 7},
-    {2, 6, 7},
-    {4, 5, 6},
-    {5, 6, 7},
-    {0, 1, 4},
-    {1, 3, 5},
-    {1, 3, 7},
-    {1, 5, 7},
-    {0, 2, 4},
-    {2, 4, 6}
-    };
+    // {1, 2, 3},
+    // {2, 3, 7},
+    // {2, 6, 7},
+    // {4, 5, 6},
+    // {5, 6, 7},
+    // {0, 1, 4},
+    // {1, 3, 5},
+    // {1, 3, 7},
+    // {1, 5, 7},
+    // {0, 2, 4},
+    // {2, 4, 6}
+};
 
 void RenderCB()
 {
@@ -61,17 +58,16 @@ void RenderCB()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIndexVBO);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glDrawArrays(GL_TRIANGLES, 0, (sizeof(cube_vertex_data) / 3 / sizeof(GLfloat)));
-    GLfloat scale = 0.1;
+    GLfloat scale = 0.5;
     GLfloat matrix[4][4] = {
         {scale, 0.0, 0.0, 0.0},
         {0.0, scale, 0.0, 0.0},
         {0.0, 0.0, scale, 0.0},
         {0.0, 0.0, 0.0, 1.0},
     };
-    transformMatrix = glGetUniformLocation(shaderProgram, "transformMatrix");
-    glUniformMatrix4fv(transformMatrix, 1, GL_FALSE, &matrix[0][0]);
-    glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / 3 / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
+    // glUniformMatrix4fv(transformMatrix, 1, GL_FALSE, &matrix[0][0]);
+    glDrawArrays(GL_TRIANGLES, 0, (sizeof(cube_vertex_data) / 3 / sizeof(GLfloat)));
+    // glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / 3 / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
     glDisableVertexAttribArray(0);
 
     glutSwapBuffers();
@@ -116,27 +112,26 @@ void checkShaderCompilation(GLuint &shader)
     }
 }
 
+void AddShader(GLuint shader, char* file, GLenum shaderType)
+{
+    GLchar *shaderSource = filetobuf(file);
+    shader = glCreateShader(shaderType);
+    glShaderSource(shader, 1, (const GLchar **)shaderSource, 0);
+    glCompileShader(shader);
+    checkShaderCompilation(shader);
+    free(shaderSource);
+}
+
 void CompileShaders()
 {
-    vertexShaderSource = filetobuf(VERTEX_SHADER_FILENAME);
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, (const GLchar **)&vertexShaderSource, 0);
-    glCompileShader(vertexShader);
-    checkShaderCompilation(vertexShader);
-    free(vertexShaderSource);
-
-    fragmentShaderSource = filetobuf(FRAGMENT_SHADER_FILENAME);
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, (const GLchar **)&vertexShaderSource, 0);
-    glCompileShader(fragmentShader);
-    checkShaderCompilation(fragmentShader);
-    free(fragmentShaderSource);
+    AddShader(vertexShader, VERTEX_SHADER_FILENAME, GL_VERTEX_SHADER);
+    AddShader(fragmentShader, FRAGMENT_SHADER_FILENAME, GL_FRAGMENT_SHADER);
 
     shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
-
     glLinkProgram(shaderProgram);
+    // transformMatrix = glGetUniformLocation(shaderProgram, "transformMatrix");
     glUseProgram(shaderProgram);
 }
 
@@ -167,7 +162,7 @@ void SpecialCB(int key, int x, int y)
     }
 }
 
-void CreateVertexArrays()
+void CreateVertexBuffer()
 {
     glGenBuffers(1, &cubeVertexVBO);
     glBindBuffer(GL_ARRAY_BUFFER, cubeVertexVBO);
@@ -189,6 +184,10 @@ int main(int argc, char *argv[])
     glutSetCursor(GLUT_CURSOR_CROSSHAIR);
     glutPostRedisplay();
 
+    glutDisplayFunc(RenderCB);
+    glutKeyboardFunc(KeyboardCB);
+    glutSpecialFunc(SpecialCB);
+
     glewExperimental = true;
     if (glewInit() != GLEW_OK)
     {
@@ -198,11 +197,9 @@ int main(int argc, char *argv[])
 
     glClearColor(BACKGROUND_RED, BACKGROUND_GREEN, BACKGROUND_BLUE, BACKGROUND_ALPHA);
 
-    CreateVertexArrays();
+    CreateVertexBuffer();
 
-    glutDisplayFunc(RenderCB);
-    glutKeyboardFunc(KeyboardCB);
-    glutSpecialFunc(SpecialCB);
+    // CompileShaders();
 
     glutMainLoop();
 
