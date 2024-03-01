@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <math.h>
 
 const int WINDOW_HEIGHT = 600;
 const int WINDOW_WIDTH = 800;
@@ -17,11 +18,11 @@ const GLclampf BACKGROUND_BLUE = 0.0f;
 const GLclampf BACKGROUND_ALPHA = 0.0f;
 char VERTEX_SHADER_FILENAME[] = "shader.vs";
 char FRAGMENT_SHADER_FILENAME[] = "shader.fs";
-GLuint transformMatrix;
+unsigned int RANDOM_SEED = 42;
 
+GLuint transformMatrix;
 GLuint cubeVBO;
 GLuint cubeIBO;
-
 GLuint shaderProgram;
 
 GLfloat cube_vertex_data[][3] = {
@@ -54,20 +55,22 @@ void RenderCB()
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    GLfloat scale = 1.5;
-    GLfloat matrix[4][4] = {
-        {scale, 0.0, 0.0, 0.0},
-        {0.0, scale, 0.0, 0.0},
-        {0.0, 0.0, scale, 0.0},
+    static float angle = 1.5;
+    static float delta = 0.1;
+    angle += delta;
+
+    float matrix[4][4] = {
+        {cosf(angle), 0.0, -sinf(angle), 0.0},
+        {0.0, 1.0, 0.0, 0.0},
+        {sinf(angle), 0.0, cosf(angle), 0.0},
         {0.0, 0.0, 0.0, 1.0},
     };
     glUniformMatrix4fv(transformMatrix, 1, GL_FALSE, &matrix[0][0]);
-    // glDrawArrays(GL_TRIANGLES, 0, (sizeof(cube_vertex_data) / 3 / sizeof(GLfloat)));
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
     glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
-
     glDisableVertexAttribArray(0);
 
+    glutPostRedisplay();
     glutSwapBuffers();
 }
 
@@ -81,9 +84,7 @@ void checkShaderCompilation(GLuint &shader)
         glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
         GLchar *shaderInfoLog = (char *)malloc(maxLength);
         glGetShaderInfoLog(shader, maxLength, &maxLength, shaderInfoLog);
-
         // Надо кидать ошибку или как-то ее обрабатывать
-
         free(shaderInfoLog);
         exit(-1);
     }
@@ -169,6 +170,8 @@ void CreateBuffers()
 
 int main(int argc, char *argv[])
 {
+    srandom(RANDOM_SEED);
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA);
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -176,7 +179,6 @@ int main(int argc, char *argv[])
 
     glutCreateWindow(WINDOW_NAME);
     glutSetCursor(GLUT_CURSOR_CROSSHAIR);
-    glutPostRedisplay();
 
     glutDisplayFunc(RenderCB);
     glutKeyboardFunc(KeyboardCB);
@@ -193,6 +195,7 @@ int main(int argc, char *argv[])
 
     CreateBuffers();
     CompileShaders();
+    glEnable(GL_CULL_FACE);
 
     glutMainLoop();
 
