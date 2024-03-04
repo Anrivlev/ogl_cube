@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <math.h>
+#include <glm/glm.hpp>
 
 const int WINDOW_HEIGHT = 600;
 const int WINDOW_WIDTH = 800;
@@ -20,55 +21,88 @@ char VERTEX_SHADER_FILENAME[] = "shader.vs";
 char FRAGMENT_SHADER_FILENAME[] = "shader.fs";
 unsigned int RANDOM_SEED = 42;
 
-GLuint transformMatrix;
+GLuint WVP;
 GLuint cubeVBO;
+GLuint cubeCBO;
 GLuint cubeIBO;
 GLuint shaderProgram;
 
 GLfloat cube_vertex_data[][3] = {
-    {-0.5f, -0.5f, 0.0f},
-    {-0.5f, -0.2, 0.5f},
-    {-0.5f, 0.5f, 0.0f},
-    {0.5f, 0.5f, 0.5f},
-    {0.5f, -0.5f, 0.0f},
+    {-0.5f, -0.5f, -0.5f},
+    {-0.5f, -0.5f, 0.5f},
+    {-0.5f, 0.5f, -0.5f},
+    {-0.5f, 0.5f, 0.5f},
+    {0.5f, -0.5f, -0.5f},
     {0.5f, -0.5f, 0.5f},
-    {0.5f, 0.5f, 0.0f},
+    {0.5f, 0.5f, -0.5f},
     {0.5f, 0.5f, 0.5f},
 };
 GLuint cube_index_data[][3] = {
-    {1, 2, 3},
-    {2, 3, 7},
-    {2, 6, 7},
-    {4, 5, 6},
+    // LEFT
+    {1, 3, 2},
+    {0, 1, 2},
+    // BOTTOM
+    {0, 4, 1},
+    {1, 4, 5},
+    // TOP
+    {2, 3, 6},
+    {3, 7, 6},
+    // BACK
+    {3, 1, 5},
+    {3, 5, 7},
+    // RIGHT
+    {4, 6, 5},
     {5, 6, 7},
-    {0, 1, 4},
-    {1, 3, 5},
-    {1, 3, 7},
-    {1, 5, 7},
+    // FRONT
     {0, 2, 4},
-    {2, 4, 6}};
+    {2, 6, 4},
+};
+GLfloat cube_color_data[][3] = {
+    {0.0f, 0.0f, 0.0f},
+    {0.0f, 0.0f, 1.0f},
+    {0.0f, 1.0f, 0.0f},
+    {0.0f, 1.0f, 1.0f},
+    {1.0f, 0.0f, 0.0f},
+    {1.0f, 0.0f, 1.0f},
+    {1.0f, 1.0f, 0.0f},
+    {1.0f, 1.0f, 1.0f}};
+
+static GLfloat angle = 0.0f;
+static GLfloat deltaAngle = 0.0f;
+static GLfloat deltaDeltaAngle = 0.0001f;
+static GLfloat scale = 1.0f;
+static GLfloat deltaScale = 0.01f;
 
 void RenderCB()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    static float angle = 1.5;
-    static float delta = 0.01;
-    angle += delta;
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, cubeCBO);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    angle += deltaAngle;
 
-    float matrix[4][4] = {
+    glm::mat4 rotationMatrix = glm::mat4({
         {cosf(angle), 0.0, -sinf(angle), 0.0},
         {0.0, 1.0, 0.0, 0.0},
         {sinf(angle), 0.0, cosf(angle), 0.0},
         {0.0, 0.0, 0.0, 1.0},
-    };
-    glUniformMatrix4fv(transformMatrix, 1, GL_FALSE, &matrix[0][0]);
+    });
+    glm::mat4 scaleMatrix = glm::mat4({
+        {scale, 0.0, 0.0, 0.0},
+        {0.0, scale, 0.0, 0.0},
+        {0.0, 0.0, scale, 0.0},
+        {0.0, 0.0, 0.0, 1.0},
+    });
+    glm::mat4 finalMatrix = rotationMatrix * scaleMatrix;
+    glUniformMatrix4fv(WVP, 1, GL_FALSE, &finalMatrix[0][0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
     glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
     glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
 
     glutPostRedisplay();
     glutSwapBuffers();
@@ -104,7 +138,7 @@ void AddShader(GLuint &shader, char *file, GLenum shaderType)
     }
     else
     {
-        printf("Impossible to open %s. Are you in the right directory ? Don't forget to read the FAQ !\n", file);
+        printf("Impossible to open %s.\n", file);
         getchar();
         exit(0);
     }
@@ -126,7 +160,7 @@ void CompileShaders()
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
-    transformMatrix = glGetUniformLocation(shaderProgram, "transformMatrix");
+    WVP = glGetUniformLocation(shaderProgram, "WVP");
     glUseProgram(shaderProgram);
 }
 
@@ -136,21 +170,46 @@ void KeyboardCB(unsigned char key, int x, int y)
 
 void SpecialCB(int key, int x, int y)
 {
-    const int positionChangeSpeed = 10;
-    const int darkMatterConst = 37;
+    int modifier = glutGetModifiers();
     switch (key)
     {
     case GLUT_KEY_UP:
-        glutPositionWindow(glutGet(GLUT_WINDOW_X), glutGet(GLUT_WINDOW_Y) - positionChangeSpeed - darkMatterConst);
         break;
     case GLUT_KEY_DOWN:
-        glutPositionWindow(glutGet(GLUT_WINDOW_X), glutGet(GLUT_WINDOW_Y) + positionChangeSpeed - darkMatterConst);
         break;
     case GLUT_KEY_LEFT:
-        glutPositionWindow(glutGet(GLUT_WINDOW_X) - positionChangeSpeed, glutGet(GLUT_WINDOW_Y) - darkMatterConst);
         break;
     case GLUT_KEY_RIGHT:
-        glutPositionWindow(glutGet(GLUT_WINDOW_X) + positionChangeSpeed, glutGet(GLUT_WINDOW_Y) - darkMatterConst);
+        break;
+    case GLUT_KEY_PAGE_UP:
+        switch (modifier)
+        {
+        case GLUT_ACTIVE_SHIFT:
+            scale += deltaScale;
+            break;
+        case GLUT_ACTIVE_CTRL:
+            break;
+        case GLUT_ACTIVE_ALT:
+            break;
+        default:
+            deltaAngle += deltaDeltaAngle;
+            break;
+        }
+        break;
+    case GLUT_KEY_PAGE_DOWN:
+        switch (modifier)
+        {
+        case GLUT_ACTIVE_SHIFT:
+            scale -= deltaScale;
+            break;
+        case GLUT_ACTIVE_CTRL:
+            break;
+        case GLUT_ACTIVE_ALT:
+            break;
+        default:
+            deltaAngle -= deltaDeltaAngle;
+            break;
+        }
         break;
     default:
         break;
@@ -162,6 +221,10 @@ void CreateBuffers()
     glGenBuffers(1, &cubeVBO);
     glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertex_data), cube_vertex_data, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &cubeCBO);
+    glBindBuffer(GL_ARRAY_BUFFER, cubeCBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cube_color_data), cube_color_data, GL_STATIC_DRAW);
 
     glGenBuffers(1, &cubeIBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
@@ -195,7 +258,9 @@ int main(int argc, char *argv[])
 
     CreateBuffers();
     CompileShaders();
-    // glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
 
     glutMainLoop();
 
