@@ -12,8 +12,8 @@ const int WINDOW_WIDTH = 800;
 const int x = 100;
 const int y = 200;
 const char WINDOW_NAME[] = "Rotating cube";
-const GLclampf BACKGROUND_RED = 0.1f;
-const GLclampf BACKGROUND_GREEN = 0.1f;
+const GLclampf BACKGROUND_RED = 0.0f;
+const GLclampf BACKGROUND_GREEN = 0.0f;
 const GLclampf BACKGROUND_BLUE = 0.0f;
 const GLclampf BACKGROUND_ALPHA = 0.0f;
 char VERTEX_SHADER_FILENAME[] = "shader.vs";
@@ -26,14 +26,14 @@ GLuint cubeIBO;
 GLuint shaderProgram;
 
 GLfloat cube_vertex_data[][3] = {
-    {-0.5f, -0.5f, 0.0f},
-    {-0.5f, -0.5f, 0.5f},
-    {-0.5f, 0.5f, 0.0f},
-    {0.5f, 0.5f, 0.5f},
-    {0.5f, -0.5f, 0.0f},
-    {0.5f, -0.5f, 0.5f},
-    {0.5f, 0.5f, 0.0f},
-    {0.5f, 0.5f, 0.5f},
+    {-0.2f, -0.2f, 0.0f},
+    {-0.2f, -0.2, 0.5f},
+    {-0.2f, 0.2f, 0.0f},
+    {0.2f, 0.2f, 0.5f},
+    {0.2f, -0.2f, 0.0f},
+    {0.2f, -0.2f, 0.5f},
+    {0.2f, 0.2f, 0.0f},
+    {0.2f, 0.2f, 0.5f},
 };
 GLuint cube_index_data[][3] = {
     {1, 2, 3},
@@ -195,7 +195,7 @@ int main(int argc, char *argv[])
 
     CreateBuffers();
     CompileShaders();
-    glEnable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
 
     glutMainLoop();
 
