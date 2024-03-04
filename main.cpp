@@ -72,6 +72,8 @@ static GLfloat deltaAngle = 0.0f;
 static GLfloat deltaDeltaAngle = 0.0001f;
 static GLfloat scale = 1.0f;
 static GLfloat deltaScale = 0.01f;
+static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 0.0f);
+static GLfloat deltaTranslation = 0.01f;
 
 void RenderCB()
 {
@@ -97,7 +99,13 @@ void RenderCB()
         {0.0, 0.0, scale, 0.0},
         {0.0, 0.0, 0.0, 1.0},
     });
-    glm::mat4 finalMatrix = rotationMatrix * scaleMatrix;
+    glm::mat4 translationMatrix = glm::mat4({
+        {1.0, 0.0, 0.0, translationVector.x},
+        {0.0, 1.0, 0.0, translationVector.y},
+        {0.0, 0.0, 1.0, translationVector.z},
+        {0.0, 0.0, 0.0, 1.0},
+    });
+    glm::mat4 finalMatrix = translationMatrix * rotationMatrix * scaleMatrix;
     glUniformMatrix4fv(WVP, 1, GL_FALSE, &finalMatrix[0][0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
     glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
@@ -174,12 +182,60 @@ void SpecialCB(int key, int x, int y)
     switch (key)
     {
     case GLUT_KEY_UP:
+        switch (modifier)
+        {
+        case GLUT_ACTIVE_SHIFT:
+            translationVector.y += deltaTranslation;
+            break;
+        case GLUT_ACTIVE_CTRL:
+            break;
+        case GLUT_ACTIVE_ALT:
+            break;
+        default:
+            break;
+        }
         break;
     case GLUT_KEY_DOWN:
+        switch (modifier)
+        {
+        case GLUT_ACTIVE_SHIFT:
+            translationVector.y -= deltaTranslation;
+            break;
+        case GLUT_ACTIVE_CTRL:
+            break;
+        case GLUT_ACTIVE_ALT:
+            break;
+        default:
+            break;
+        }
         break;
     case GLUT_KEY_LEFT:
+        switch (modifier)
+        {
+        case GLUT_ACTIVE_SHIFT:
+            translationVector.x -= deltaTranslation;
+            break;
+        case GLUT_ACTIVE_CTRL:
+            break;
+        case GLUT_ACTIVE_ALT:
+            break;
+        default:
+            break;
+        }
         break;
     case GLUT_KEY_RIGHT:
+        switch (modifier)
+        {
+        case GLUT_ACTIVE_SHIFT:
+            translationVector.x += deltaTranslation;
+            break;
+        case GLUT_ACTIVE_CTRL:
+            break;
+        case GLUT_ACTIVE_ALT:
+            break;
+        default:
+            break;
+        }
         break;
     case GLUT_KEY_PAGE_UP:
         switch (modifier)
