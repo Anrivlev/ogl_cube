@@ -44,23 +44,23 @@ GLfloat cube_vertex_data[][3] = {
 };
 GLuint cube_index_data[][3] = {
     // LEFT
-    {1, 3, 2},
-    {0, 1, 2},
+    {1, 2, 3},
+    {0, 2, 1},
     // BOTTOM
-    {0, 4, 1},
-    {1, 4, 5},
+    {0, 1, 4},
+    {1, 5, 4},
     // TOP
-    {2, 3, 6},
-    {3, 7, 6},
+    {2, 6, 3},
+    {3, 6, 7},
     // BACK
-    {3, 1, 5},
-    {3, 5, 7},
+    {3, 5, 1},
+    {3, 7, 5},
     // RIGHT
-    {4, 6, 5},
-    {5, 6, 7},
+    {4, 5, 6},
+    {5, 7, 6},
     // FRONT
-    {0, 2, 4},
-    {2, 6, 4},
+    {0, 4, 2},
+    {2, 4, 6},
 };
 GLfloat cube_color_data[][3] = {
     {0.0f, 0.0f, 0.0f},
@@ -77,10 +77,12 @@ static GLfloat deltaAngle = 0.0f;
 static GLfloat deltaDeltaAngle = 0.0001f;
 static GLfloat scale = 1.0f;
 static GLfloat deltaScale = 0.01f;
-static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 0.0f);
+static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 1.3f);
 static GLfloat deltaTranslation = 0.1f;
 static glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 static GLfloat deltaCameraPosition = 0.1f;
+static GLfloat cameraAngle = 0.0f;
+static GLfloat deltaCameraAngle = 0.1f;
 
 void RenderCB()
 {
@@ -118,13 +120,19 @@ void RenderCB()
         {0.0, 0.0, (-NEAR_Z - FAR_Z) / (NEAR_Z - FAR_Z), 2 * FAR_Z * NEAR_Z / (NEAR_Z - FAR_Z)},
         {0.0, 0.0, 1.0, 0.0},
     });
-    glm::mat4 viewMatrix = glm::mat4({
+    glm::mat4 viewRotationMatrix = glm::mat4({
+        {cosf(cameraAngle), 0.0, -sinf(cameraAngle), 0.0},
+        {0.0, 1.0, 0.0, 0.0},
+        {sinf(cameraAngle), 0.0, cosf(cameraAngle), 0.0},
+        {0.0, 0.0, 0.0, 1.0},
+    });
+    glm::mat4 viewPositionMatrix = glm::mat4({
         {1.0, 0.0, 0.0, cameraPosition.x},
         {0.0, 1.0, 0.0, cameraPosition.y},
         {0.0, 0.0, 1.0, cameraPosition.z},
         {0.0, 0.0, 0.0, 1.0},
     });
-    glm::mat4 finalMatrix = perspectiveProjectionMatrix * viewMatrix * translationMatrix * rotationMatrix * scaleMatrix;
+    glm::mat4 finalMatrix = viewPositionMatrix * viewRotationMatrix * translationMatrix * rotationMatrix * scaleMatrix;
     glUniformMatrix4fv(WVP, 1, GL_FALSE, &finalMatrix[0][0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
     glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
@@ -193,6 +201,19 @@ void CompileShaders()
 
 void KeyboardCB(unsigned char key, int x, int y)
 {
+    switch (key)
+    {
+    case 81:
+    case 113:
+        cameraAngle -= deltaCameraAngle;
+        break;
+    case 69:
+    case 101:
+        cameraAngle += deltaCameraAngle;
+        break;
+    default:
+        break;
+    }
 }
 
 void SpecialCB(int key, int x, int y)
@@ -339,8 +360,8 @@ int main(int argc, char *argv[])
 
     CreateBuffers();
     CompileShaders();
-    // glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    // glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
     glutMainLoop();
