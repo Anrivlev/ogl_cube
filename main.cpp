@@ -326,7 +326,7 @@ int main(int argc, char *argv[])
 
     CreateBuffers();
     CompileShaders();
-    glEnable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
