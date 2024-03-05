@@ -8,11 +8,11 @@
 #include <math.h>
 #include <glm/glm.hpp>
 
-int WINDOW_HEIGHT = 400;
-int WINDOW_WIDTH = 300;
+int WINDOW_HEIGHT = 900;
+int WINDOW_WIDTH = 1200;
 float ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
 const int x = 100;
-const int y = 200;
+const int y = 50;
 const char WINDOW_NAME[] = "Rotating cube";
 const GLclampf BACKGROUND_RED = 0.0f;
 const GLclampf BACKGROUND_GREEN = 0.0f;
@@ -79,6 +79,8 @@ static GLfloat scale = 1.0f;
 static GLfloat deltaScale = 0.01f;
 static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 0.0f);
 static GLfloat deltaTranslation = 0.1f;
+static glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+static GLfloat deltaCameraPosition = 0.1f;
 
 void RenderCB()
 {
@@ -110,14 +112,19 @@ void RenderCB()
         {0.0, 0.0, 1.0, translationVector.z},
         {0.0, 0.0, 0.0, 1.0},
     });
-
     glm::mat4 perspectiveProjectionMatrix = glm::mat4({
         {OneOverTanHalfFov / ASPECT_RATIO, 0.0, 0.0, 0.0},
         {0.0, OneOverTanHalfFov, 0.0, 0.0},
         {0.0, 0.0, (-NEAR_Z - FAR_Z) / (NEAR_Z - FAR_Z), 2 * FAR_Z * NEAR_Z / (NEAR_Z - FAR_Z)},
         {0.0, 0.0, 1.0, 0.0},
     });
-    glm::mat4 finalMatrix = perspectiveProjectionMatrix * translationMatrix * rotationMatrix * scaleMatrix;
+    glm::mat4 viewMatrix = glm::mat4({
+        {1.0, 0.0, 0.0, cameraPosition.x},
+        {0.0, 1.0, 0.0, cameraPosition.y},
+        {0.0, 0.0, 1.0, cameraPosition.z},
+        {0.0, 0.0, 0.0, 1.0},
+    });
+    glm::mat4 finalMatrix = perspectiveProjectionMatrix * viewMatrix * translationMatrix * rotationMatrix * scaleMatrix;
     glUniformMatrix4fv(WVP, 1, GL_FALSE, &finalMatrix[0][0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
     glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
@@ -205,7 +212,7 @@ void SpecialCB(int key, int x, int y)
             translationVector.z += deltaTranslation;
             break;
         default:
-            translationVector.z += deltaTranslation;
+            cameraPosition.z += deltaCameraPosition;
             break;
         }
         break;
@@ -221,7 +228,7 @@ void SpecialCB(int key, int x, int y)
             translationVector.z -= deltaTranslation;
             break;
         default:
-            translationVector.z -= deltaTranslation;
+            cameraPosition.z -= deltaCameraPosition;
             break;
         }
         break;
@@ -236,6 +243,7 @@ void SpecialCB(int key, int x, int y)
         case GLUT_ACTIVE_ALT:
             break;
         default:
+            cameraPosition.x -= deltaCameraPosition;
             break;
         }
         break;
@@ -250,6 +258,7 @@ void SpecialCB(int key, int x, int y)
         case GLUT_ACTIVE_ALT:
             break;
         default:
+            cameraPosition.x += deltaCameraPosition;
             break;
         }
         break;
