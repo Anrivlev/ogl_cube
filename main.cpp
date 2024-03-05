@@ -8,8 +8,9 @@
 #include <math.h>
 #include <glm/glm.hpp>
 
-const int WINDOW_HEIGHT = 600;
-const int WINDOW_WIDTH = 800;
+int WINDOW_HEIGHT = 600;
+int WINDOW_WIDTH = 800;
+float ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
 const int x = 100;
 const int y = 200;
 const char WINDOW_NAME[] = "Rotating cube";
@@ -20,7 +21,10 @@ const GLclampf BACKGROUND_ALPHA = 0.0f;
 char VERTEX_SHADER_FILENAME[] = "shader.vs";
 char FRAGMENT_SHADER_FILENAME[] = "shader.fs";
 unsigned int RANDOM_SEED = 42;
-GLfloat FOV = 90;
+GLfloat FOV = 90.0;
+GLfloat OneOverTanHalfFov = 1.0 / tanf(FOV * M_PI / 360);
+GLfloat NEAR_Z = 100.0;
+GLfloat FAR_Z = 1.0;
 
 GLuint WVP;
 GLuint cubeVBO;
@@ -103,13 +107,14 @@ void RenderCB()
     glm::mat4 translationMatrix = glm::mat4({
         {1.0, 0.0, 0.0, translationVector.x},
         {0.0, 1.0, 0.0, translationVector.y},
-        {0.0, 0.0, 1.0, translationVector.z},
+        {0.0, 0.0, 1.0, translationVector.z - 0.5},
         {0.0, 0.0, 0.0, 1.0},
     });
+
     glm::mat4 perspectiveProjectionMatrix = glm::mat4({
-        {1.0, 0.0, 0.0, 0.0},
-        {0.0, 1.0, 0.0, 0.0},
-        {0.0, 0.0, 1.0, 0.0},
+        {OneOverTanHalfFov / ASPECT_RATIO, 0.0, 0.0, 0.0},
+        {0.0, OneOverTanHalfFov, 0.0, 0.0},
+        {0.0, 0.0, (-NEAR_Z - FAR_Z) / (NEAR_Z - FAR_Z), 2 * FAR_Z * NEAR_Z / (NEAR_Z - FAR_Z)},
         {0.0, 0.0, 1.0, 0.0},
     });
     glm::mat4 finalMatrix = perspectiveProjectionMatrix * translationMatrix * rotationMatrix * scaleMatrix;
