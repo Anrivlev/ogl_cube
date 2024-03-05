@@ -21,10 +21,10 @@ const GLclampf BACKGROUND_ALPHA = 0.0f;
 char VERTEX_SHADER_FILENAME[] = "shader.vs";
 char FRAGMENT_SHADER_FILENAME[] = "shader.fs";
 unsigned int RANDOM_SEED = 42;
-GLfloat FOV = 120.0;
+GLfloat FOV = 45.0;
 GLfloat OneOverTanHalfFov = 1.0 / tanf(FOV * M_PI / 360);
 GLfloat NEAR_Z = 1.0;
-GLfloat FAR_Z = 100.0;
+GLfloat FAR_Z = 10.0;
 
 GLuint WVP;
 GLuint cubeVBO;
@@ -63,30 +63,39 @@ GLuint cube_index_data[][3] = {
     {2, 4, 6},
 };
 GLfloat cube_color_data[][3] = {
-    {0.0f, 0.0f, 0.0f},
-    {0.0f, 0.0f, 1.0f},
-    {0.0f, 1.0f, 0.0f},
-    {0.0f, 1.0f, 1.0f},
-    {1.0f, 0.0f, 0.0f},
-    {1.0f, 0.0f, 1.0f},
-    {1.0f, 1.0f, 0.0f},
-    {1.0f, 1.0f, 1.0f}};
+    {0.6f, 0.6f, 0.0f},
+    {0.6f, 0.6f, 0.0f},
+    {0.6f, 0.6f, 0.0f},
+    {0.6f, 0.6f, 0.0f},
+    {0.6f, 0.6f, 0.0f},
+    {0.6f, 0.6f, 0.0f},
+    {0.6f, 0.6f, 0.0f},
+    {0.6f, 0.6f, 0.0f},
+    // {0.2f, 0.2f, 0.2f},
+    // {0.2f, 0.2f, 0.8f},
+    // {0.2f, 0.8f, 0.2f},
+    // {0.2f, 0.8f, 0.8f},
+    // {0.8f, 0.2f, 0.2f},
+    // {0.8f, 0.2f, 0.8f},
+    // {0.8f, 0.8f, 0.2f},
+    // {0.8f, 0.8f, 0.8f}
+};
 
 static GLfloat angle = 0.0f;
 static GLfloat deltaAngle = 0.0f;
 static GLfloat deltaDeltaAngle = 0.0001f;
 static GLfloat scale = 1.0f;
 static GLfloat deltaScale = 0.01f;
-static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 1.3f);
+static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 3.0f);
 static GLfloat deltaTranslation = 0.1f;
-static glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+static glm::vec3 cameraPosition = glm::vec3(1.0f, 0.0f, 0.0f);
 static GLfloat deltaCameraPosition = 0.1f;
 static GLfloat cameraAngle = 0.0f;
 static GLfloat deltaCameraAngle = 0.1f;
 
 void RenderCB()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
@@ -362,6 +371,7 @@ int main(int argc, char *argv[])
     CompileShaders();
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
+    glEnable(GL_DEPTH_TEST);
 
     glutMainLoop();
 
