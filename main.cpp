@@ -21,7 +21,7 @@ const GLclampf BACKGROUND_ALPHA = 0.0f;
 char VERTEX_SHADER_FILENAME[] = "shader.vs";
 char FRAGMENT_SHADER_FILENAME[] = "shader.fs";
 unsigned int RANDOM_SEED = 42;
-GLfloat FOV = 100.0;
+GLfloat FOV = 120.0;
 GLfloat OneOverTanHalfFov = 1.0 / tanf(FOV * M_PI / 360);
 GLfloat NEAR_Z = 1.0;
 GLfloat FAR_Z = 100.0;
@@ -86,7 +86,7 @@ static GLfloat deltaCameraAngle = 0.1f;
 
 void RenderCB()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, cubeVBO);
@@ -132,7 +132,7 @@ void RenderCB()
         {0.0, 0.0, 1.0, cameraPosition.z},
         {0.0, 0.0, 0.0, 1.0},
     });
-    glm::mat4 finalMatrix = viewPositionMatrix * viewRotationMatrix * translationMatrix * rotationMatrix * scaleMatrix;
+    glm::mat4 finalMatrix = perspectiveProjectionMatrix * viewPositionMatrix * viewRotationMatrix * translationMatrix * rotationMatrix * scaleMatrix;
     glUniformMatrix4fv(WVP, 1, GL_FALSE, &finalMatrix[0][0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
     glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
@@ -361,8 +361,7 @@ int main(int argc, char *argv[])
     CreateBuffers();
     CompileShaders();
     glEnable(GL_CULL_FACE);
-    // glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
+    glFrontFace(GL_CW);
 
     glutMainLoop();
 
