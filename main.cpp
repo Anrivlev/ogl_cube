@@ -8,8 +8,8 @@
 #include <math.h>
 #include <glm/glm.hpp>
 
-int WINDOW_HEIGHT = 600;
-int WINDOW_WIDTH = 800;
+int WINDOW_HEIGHT = 400;
+int WINDOW_WIDTH = 300;
 float ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
 const int x = 100;
 const int y = 200;
@@ -21,10 +21,10 @@ const GLclampf BACKGROUND_ALPHA = 0.0f;
 char VERTEX_SHADER_FILENAME[] = "shader.vs";
 char FRAGMENT_SHADER_FILENAME[] = "shader.fs";
 unsigned int RANDOM_SEED = 42;
-GLfloat FOV = 90.0;
+GLfloat FOV = 100.0;
 GLfloat OneOverTanHalfFov = 1.0 / tanf(FOV * M_PI / 360);
-GLfloat NEAR_Z = 100.0;
-GLfloat FAR_Z = 1.0;
+GLfloat NEAR_Z = 1.0;
+GLfloat FAR_Z = 100.0;
 
 GLuint WVP;
 GLuint cubeVBO;
@@ -78,7 +78,7 @@ static GLfloat deltaDeltaAngle = 0.0001f;
 static GLfloat scale = 1.0f;
 static GLfloat deltaScale = 0.01f;
 static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 0.0f);
-static GLfloat deltaTranslation = 0.01f;
+static GLfloat deltaTranslation = 0.1f;
 
 void RenderCB()
 {
@@ -107,7 +107,7 @@ void RenderCB()
     glm::mat4 translationMatrix = glm::mat4({
         {1.0, 0.0, 0.0, translationVector.x},
         {0.0, 1.0, 0.0, translationVector.y},
-        {0.0, 0.0, 1.0, translationVector.z - 0.5},
+        {0.0, 0.0, 1.0, translationVector.z},
         {0.0, 0.0, 0.0, 1.0},
     });
 
@@ -202,8 +202,10 @@ void SpecialCB(int key, int x, int y)
         case GLUT_ACTIVE_CTRL:
             break;
         case GLUT_ACTIVE_ALT:
+            translationVector.z += deltaTranslation;
             break;
         default:
+            translationVector.z += deltaTranslation;
             break;
         }
         break;
@@ -216,8 +218,10 @@ void SpecialCB(int key, int x, int y)
         case GLUT_ACTIVE_CTRL:
             break;
         case GLUT_ACTIVE_ALT:
+            translationVector.z -= deltaTranslation;
             break;
         default:
+            translationVector.z -= deltaTranslation;
             break;
         }
         break;
