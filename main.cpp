@@ -20,6 +20,7 @@ const GLclampf BACKGROUND_ALPHA = 0.0f;
 char VERTEX_SHADER_FILENAME[] = "shader.vs";
 char FRAGMENT_SHADER_FILENAME[] = "shader.fs";
 unsigned int RANDOM_SEED = 42;
+GLfloat FOV = 90;
 
 GLuint WVP;
 GLuint cubeVBO;
