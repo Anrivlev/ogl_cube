@@ -105,7 +105,13 @@ void RenderCB()
         {0.0, 0.0, 1.0, translationVector.z},
         {0.0, 0.0, 0.0, 1.0},
     });
-    glm::mat4 finalMatrix = translationMatrix * rotationMatrix * scaleMatrix;
+    glm::mat4 perspectiveProjectionMatrix = glm::mat4({
+        {1.0, 0.0, 0.0, 0.0},
+        {0.0, 1.0, 0.0, 0.0},
+        {0.0, 0.0, 1.0, 0.0},
+        {0.0, 0.0, 1.0, 0.0},
+    });
+    glm::mat4 finalMatrix = perspectiveProjectionMatrix * translationMatrix * rotationMatrix * scaleMatrix;
     glUniformMatrix4fv(WVP, 1, GL_FALSE, &finalMatrix[0][0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
     glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
