@@ -141,7 +141,7 @@ void RenderCB()
         {0.0, 0.0, 1.0, cameraPosition.z},
         {0.0, 0.0, 0.0, 1.0},
     });
-    glm::mat4 finalMatrix = perspectiveProjectionMatrix * viewPositionMatrix * viewRotationMatrix * translationMatrix * rotationMatrix * scaleMatrix;
+    glm::mat4 finalMatrix =  viewPositionMatrix * viewRotationMatrix * translationMatrix * rotationMatrix * scaleMatrix;
     glUniformMatrix4fv(WVP, 1, GL_FALSE, &finalMatrix[0][0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
     glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
