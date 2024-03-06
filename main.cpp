@@ -84,7 +84,7 @@ static GLfloat deltaAngle = 0.0f;
 static GLfloat deltaDeltaAngle = 0.0001f;
 static GLfloat scale = 1.0f;
 static GLfloat deltaScale = 0.01f;
-static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 2.0f);
+static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 0.4f);
 static GLfloat deltaTranslation = 0.1f;
 static glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 static GLfloat deltaCameraPosition = 0.1f;
@@ -368,8 +368,8 @@ int main(int argc, char *argv[])
 
     CreateBuffers();
     CompileShaders();
-    // glEnable(GL_CULL_FACE);
-    // glFrontFace(GL_CCW);
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CCW);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
