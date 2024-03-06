@@ -8,8 +8,8 @@
 #include <math.h>
 #include <glm/glm.hpp>
 
-int WINDOW_HEIGHT = 900;
-int WINDOW_WIDTH = 1200;
+int WINDOW_HEIGHT = 300;
+int WINDOW_WIDTH = 400;
 float ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
 const int x = 100;
 const int y = 50;
@@ -77,8 +77,7 @@ GLfloat cube_color_data[][3] = {
     {0.8f, 0.2f, 0.2f},
     {0.8f, 0.2f, 0.8f},
     {0.8f, 0.8f, 0.2f},
-    {0.8f, 0.8f, 0.8f}
-};
+    {0.8f, 0.8f, 0.8f}};
 
 static GLfloat angle = 0.0f;
 static GLfloat deltaAngle = 0.0f;
@@ -126,8 +125,8 @@ void RenderCB()
     glm::mat4 perspectiveProjectionMatrix = glm::mat4({
         {OneOverTanHalfFov / ASPECT_RATIO, 0.0, 0.0, 0.0},
         {0.0, OneOverTanHalfFov, 0.0, 0.0},
-        {0.0, 0.0, (-FAR_Z - NEAR_Z) / (NEAR_Z - FAR_Z), (2.0 * NEAR_Z * FAR_Z) / (NEAR_Z - FAR_Z)},
-        {0.0, 0.0, 1.0, 0.0},
+        {0.0, 0.0, -FAR_Z / (FAR_Z - NEAR_Z), -1.0},
+        {0.0, 0.0, -FAR_Z * NEAR_Z / (FAR_Z - NEAR_Z), 0.0},
     });
     glm::mat4 viewRotationMatrix = glm::mat4({
         {cosf(cameraAngle), 0.0, -sinf(cameraAngle), 0.0},
@@ -141,7 +140,7 @@ void RenderCB()
         {0.0, 0.0, 1.0, cameraPosition.z},
         {0.0, 0.0, 0.0, 1.0},
     });
-    glm::mat4 finalMatrix =  viewPositionMatrix * viewRotationMatrix * translationMatrix * rotationMatrix * scaleMatrix;
+    glm::mat4 finalMatrix = viewPositionMatrix * viewRotationMatrix * translationMatrix * rotationMatrix * scaleMatrix;
     glUniformMatrix4fv(WVP, 1, GL_FALSE, &finalMatrix[0][0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
     glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
