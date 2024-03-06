@@ -21,8 +21,7 @@ const GLclampf BACKGROUND_ALPHA = 0.0f;
 char VERTEX_SHADER_FILENAME[] = "shader.vs";
 char FRAGMENT_SHADER_FILENAME[] = "shader.fs";
 unsigned int RANDOM_SEED = 42;
-GLfloat FOV = 45.0;
-GLfloat OneOverTanHalfFov = 1.0 / tanf(FOV * M_PI / 360);
+GLfloat FOV = 90.0;
 GLfloat NEAR_Z = 1.0;
 GLfloat FAR_Z = 10.0;
 
@@ -123,11 +122,14 @@ void RenderCB()
         {0.0, 0.0, 1.0, translationVector.z},
         {0.0, 0.0, 0.0, 1.0},
     });
+    GLfloat OneOverTanHalfFov = 1.0 / tanf(FOV * M_PI / 360);
+    GLfloat A = (FAR_Z + NEAR_Z) / (FAR_Z - NEAR_Z);
+    GLfloat B = -2 * FAR_Z * NEAR_Z / (FAR_Z - NEAR_Z);
     glm::mat4 perspectiveProjectionMatrix = glm::mat4({
         {OneOverTanHalfFov / ASPECT_RATIO, 0.0, 0.0, 0.0},
         {0.0, OneOverTanHalfFov, 0.0, 0.0},
-        {0.0, 0.0, (-NEAR_Z - FAR_Z) / (NEAR_Z - FAR_Z), 2 * FAR_Z * NEAR_Z / (NEAR_Z - FAR_Z)},
-        {0.0, 0.0, 1.0, 0.0},
+        {0.0, 0.0, -A, B},
+        {0.0, 0.0, -1.0, 0.0},
     });
     glm::mat4 viewRotationMatrix = glm::mat4({
         {cosf(cameraAngle), 0.0, -sinf(cameraAngle), 0.0},
