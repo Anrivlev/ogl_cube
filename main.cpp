@@ -21,8 +21,7 @@ const GLclampf BACKGROUND_ALPHA = 0.0f;
 char VERTEX_SHADER_FILENAME[] = "shader.vs";
 char FRAGMENT_SHADER_FILENAME[] = "shader.fs";
 unsigned int RANDOM_SEED = 42;
-GLfloat FOV = 45.0;
-GLfloat OneOverTanHalfFov = 1.0 / tanf(FOV * M_PI / 360);
+GLfloat FOV = 90.0;
 GLfloat NEAR_Z = 1.0;
 GLfloat FAR_Z = 10.0;
 
@@ -63,22 +62,22 @@ GLuint cube_index_data[][3] = {
     {2, 4, 6},
 };
 GLfloat cube_color_data[][3] = {
-    {0.6f, 0.6f, 0.0f},
-    {0.6f, 0.6f, 0.0f},
-    {0.6f, 0.6f, 0.0f},
-    {0.6f, 0.6f, 0.0f},
-    {0.6f, 0.6f, 0.0f},
-    {0.6f, 0.6f, 0.0f},
-    {0.6f, 0.6f, 0.0f},
-    {0.6f, 0.6f, 0.0f},
-    // {0.2f, 0.2f, 0.2f},
-    // {0.2f, 0.2f, 0.8f},
-    // {0.2f, 0.8f, 0.2f},
-    // {0.2f, 0.8f, 0.8f},
-    // {0.8f, 0.2f, 0.2f},
-    // {0.8f, 0.2f, 0.8f},
-    // {0.8f, 0.8f, 0.2f},
-    // {0.8f, 0.8f, 0.8f}
+    // {0.6f, 0.6f, 0.0f},
+    // {0.6f, 0.6f, 0.0f},
+    // {0.6f, 0.6f, 0.0f},
+    // {0.6f, 0.6f, 0.0f},
+    // {0.6f, 0.6f, 0.0f},
+    // {0.6f, 0.6f, 0.0f},
+    // {0.6f, 0.6f, 0.0f},
+    // {0.6f, 0.6f, 0.0f},
+    {0.2f, 0.2f, 0.2f},
+    {0.2f, 0.2f, 0.8f},
+    {0.2f, 0.8f, 0.2f},
+    {0.2f, 0.8f, 0.8f},
+    {0.8f, 0.2f, 0.2f},
+    {0.8f, 0.2f, 0.8f},
+    {0.8f, 0.8f, 0.2f},
+    {0.8f, 0.8f, 0.8f}
 };
 
 static GLfloat angle = 0.0f;
@@ -86,9 +85,9 @@ static GLfloat deltaAngle = 0.0f;
 static GLfloat deltaDeltaAngle = 0.0001f;
 static GLfloat scale = 1.0f;
 static GLfloat deltaScale = 0.01f;
-static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 3.0f);
+static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 2.0f);
 static GLfloat deltaTranslation = 0.1f;
-static glm::vec3 cameraPosition = glm::vec3(1.0f, 0.0f, 0.0f);
+static glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 static GLfloat deltaCameraPosition = 0.1f;
 static GLfloat cameraAngle = 0.0f;
 static GLfloat deltaCameraAngle = 0.1f;
@@ -123,10 +122,11 @@ void RenderCB()
         {0.0, 0.0, 1.0, translationVector.z},
         {0.0, 0.0, 0.0, 1.0},
     });
+    GLfloat OneOverTanHalfFov = 1.0 / tanf(FOV * M_PI / 360);
     glm::mat4 perspectiveProjectionMatrix = glm::mat4({
         {OneOverTanHalfFov / ASPECT_RATIO, 0.0, 0.0, 0.0},
         {0.0, OneOverTanHalfFov, 0.0, 0.0},
-        {0.0, 0.0, (-NEAR_Z - FAR_Z) / (NEAR_Z - FAR_Z), 2 * FAR_Z * NEAR_Z / (NEAR_Z - FAR_Z)},
+        {0.0, 0.0, (-FAR_Z - NEAR_Z) / (FAR_Z - NEAR_Z), (2.0 * NEAR_Z * FAR_Z) / (NEAR_Z - FAR_Z)},
         {0.0, 0.0, 1.0, 0.0},
     });
     glm::mat4 viewRotationMatrix = glm::mat4({
