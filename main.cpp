@@ -126,7 +126,7 @@ void RenderCB()
     glm::mat4 perspectiveProjectionMatrix = glm::mat4({
         {OneOverTanHalfFov / ASPECT_RATIO, 0.0, 0.0, 0.0},
         {0.0, OneOverTanHalfFov, 0.0, 0.0},
-        {0.0, 0.0, (-FAR_Z - NEAR_Z) / (FAR_Z - NEAR_Z), (2.0 * NEAR_Z * FAR_Z) / (NEAR_Z - FAR_Z)},
+        {0.0, 0.0, (-FAR_Z - NEAR_Z) / (NEAR_Z - FAR_Z), (2.0 * NEAR_Z * FAR_Z) / (NEAR_Z - FAR_Z)},
         {0.0, 0.0, 1.0, 0.0},
     });
     glm::mat4 viewRotationMatrix = glm::mat4({
@@ -369,9 +369,10 @@ int main(int argc, char *argv[])
 
     CreateBuffers();
     CompileShaders();
-    glEnable(GL_CULL_FACE);
-    glFrontFace(GL_CCW);
+    // glEnable(GL_CULL_FACE);
+    // glFrontFace(GL_CCW);
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
 
     glutMainLoop();
 
