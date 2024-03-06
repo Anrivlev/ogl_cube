@@ -7,32 +7,32 @@
 #include <sstream>
 #include <math.h>
 #include <glm/glm.hpp>
+#include <glm/ext.hpp>
 
-int WINDOW_HEIGHT = 300;
-int WINDOW_WIDTH = 400;
-float ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
-const int x = 100;
-const int y = 50;
-const char WINDOW_NAME[] = "Rotating cube";
-const GLclampf BACKGROUND_RED = 0.0f;
-const GLclampf BACKGROUND_GREEN = 0.0f;
-const GLclampf BACKGROUND_BLUE = 0.0f;
-const GLclampf BACKGROUND_ALPHA = 0.0f;
-char VERTEX_SHADER_FILENAME[] = "shader.vs";
-char FRAGMENT_SHADER_FILENAME[] = "shader.fs";
-unsigned int RANDOM_SEED = 42;
-GLfloat FOV = 90.0;
-GLfloat FOV = 90.0;
-GLfloat NEAR_Z = 1.0;
-GLfloat FAR_Z = 10.0;
+static float WINDOW_HEIGHT = 300.0;
+static float WINDOW_WIDTH = 400.0;
+static float ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
+static const int x = 100;
+static const int y = 50;
+static const char WINDOW_NAME[] = "Rotating cube";
+static const GLclampf BACKGROUND_RED = 0.0f;
+static const GLclampf BACKGROUND_GREEN = 0.0f;
+static const GLclampf BACKGROUND_BLUE = 0.0f;
+static const GLclampf BACKGROUND_ALPHA = 0.0f;
+static char VERTEX_SHADER_FILENAME[] = "shader.vs";
+static char FRAGMENT_SHADER_FILENAME[] = "shader.fs";
+static unsigned int RANDOM_SEED = 42;
+static GLfloat FOV = 90.0;
+static GLfloat NEAR_Z = 1.0;
+static GLfloat FAR_Z = 10.0;
 
-GLuint WVP;
-GLuint cubeVBO;
-GLuint cubeCBO;
-GLuint cubeIBO;
-GLuint shaderProgram;
+static GLuint WVP;
+static GLuint cubeVBO;
+static GLuint cubeCBO;
+static GLuint cubeIBO;
+static GLuint shaderProgram;
 
-GLfloat cube_vertex_data[][3] = {
+static GLfloat cube_vertex_data[][3] = {
     {-0.5f, -0.5f, -0.5f},
     {-0.5f, -0.5f, 0.5f},
     {-0.5f, 0.5f, -0.5f},
@@ -42,7 +42,7 @@ GLfloat cube_vertex_data[][3] = {
     {0.5f, 0.5f, -0.5f},
     {0.5f, 0.5f, 0.5f},
 };
-GLuint cube_index_data[][3] = {
+static GLuint cube_index_data[][3] = {
     // LEFT
     {1, 2, 3},
     {0, 2, 1},
@@ -62,7 +62,7 @@ GLuint cube_index_data[][3] = {
     {0, 4, 2},
     {2, 4, 6},
 };
-GLfloat cube_color_data[][3] = {
+static GLfloat cube_color_data[][3] = {
     // {0.6f, 0.6f, 0.0f},
     // {0.6f, 0.6f, 0.0f},
     // {0.6f, 0.6f, 0.0f},
@@ -85,12 +85,12 @@ static GLfloat deltaAngle = 0.0f;
 static GLfloat deltaDeltaAngle = 0.0001f;
 static GLfloat scale = 1.0f;
 static GLfloat deltaScale = 0.01f;
-static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 0.4f);
+static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 0.0f);
 static GLfloat deltaTranslation = 0.1f;
 static glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 static GLfloat deltaCameraPosition = 0.1f;
-static GLfloat cameraAngle = 0.0f;
-static GLfloat deltaCameraAngle = 0.1f;
+static glm::vec3 cameraFront = glm::vec3(0.0, 0.0, 1.0);
+static glm::vec3 cameraUp = glm::vec3(0.0, 1.0, 0.0);
 
 void RenderCB()
 {
@@ -104,46 +104,30 @@ void RenderCB()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
     angle += deltaAngle;
 
-    glm::mat4 rotationMatrix = glm::mat4({
-        {cosf(angle), 0.0, -sinf(angle), 0.0},
-        {0.0, 1.0, 0.0, 0.0},
-        {sinf(angle), 0.0, cosf(angle), 0.0},
-        {0.0, 0.0, 0.0, 1.0},
-    });
-    glm::mat4 scaleMatrix = glm::mat4({
-        {scale, 0.0, 0.0, 0.0},
-        {0.0, scale, 0.0, 0.0},
-        {0.0, 0.0, scale, 0.0},
-        {0.0, 0.0, 0.0, 1.0},
-    });
-    glm::mat4 translationMatrix = glm::mat4({
-        {1.0, 0.0, 0.0, translationVector.x},
-        {0.0, 1.0, 0.0, translationVector.y},
-        {0.0, 0.0, 1.0, translationVector.z},
-        {0.0, 0.0, 0.0, 1.0},
-    });
-    GLfloat OneOverTanHalfFov = 1.0 / tanf(FOV * M_PI / 360);
-    GLfloat A = (FAR_Z + NEAR_Z) / (FAR_Z - NEAR_Z);
-    GLfloat B = -2 * FAR_Z * NEAR_Z / (FAR_Z - NEAR_Z);
-    glm::mat4 perspectiveProjectionMatrix = glm::mat4({
-        {OneOverTanHalfFov / ASPECT_RATIO, 0.0, 0.0, 0.0},
-        {0.0, OneOverTanHalfFov, 0.0, 0.0},
-        {0.0, 0.0, -A, B},
-        {0.0, 0.0, -1.0, 0.0},
-    });
-    glm::mat4 viewRotationMatrix = glm::mat4({
-        {cosf(cameraAngle), 0.0, -sinf(cameraAngle), 0.0},
-        {0.0, 1.0, 0.0, 0.0},
-        {sinf(cameraAngle), 0.0, cosf(cameraAngle), 0.0},
-        {0.0, 0.0, 0.0, 1.0},
-    });
-    glm::mat4 viewPositionMatrix = glm::mat4({
-        {1.0, 0.0, 0.0, cameraPosition.x},
-        {0.0, 1.0, 0.0, cameraPosition.y},
-        {0.0, 0.0, 1.0, cameraPosition.z},
-        {0.0, 0.0, 0.0, 1.0},
-    });
-    glm::mat4 finalMatrix = perspectiveProjectionMatrix * viewPositionMatrix * viewRotationMatrix * translationMatrix * rotationMatrix * scaleMatrix;
+    glm::mat4 rotateM = glm::rotate(glm::mat4(), angle, glm::vec3(0, 1, 0));
+    glm::mat4 scaleM = glm::scale(glm::mat4(), glm::vec3(scale));
+    glm::mat4 translateM = glm::translate(glm::mat4(), translationVector);
+    // GLfloat OneOverTanHalfFov = 1.0 / tanf(FOV * M_PI / 360);
+    // GLfloat A = (FAR_Z + NEAR_Z) / (FAR_Z - NEAR_Z);
+    // GLfloat B = -2 * FAR_Z * NEAR_Z / (FAR_Z - NEAR_Z);
+    // glm::mat4 perspectiveProjectionMatrix = glm::mat4({
+    //     {OneOverTanHalfFov / ASPECT_RATIO, 0.0, 0.0, 0.0},
+    //     {0.0, OneOverTanHalfFov, 0.0, 0.0},
+    //     {0.0, 0.0, -A, B},
+    //     {0.0, 0.0, -1.0, 0.0},
+    // });
+    glm::mat4 projectM = glm::perspectiveFov(FOV * glm::pi<float>() / 180, WINDOW_WIDTH, WINDOW_HEIGHT, NEAR_Z, FAR_Z);
+    // glm::vec3 N = glm::normalize(cameraFront);
+    // glm::vec3 V = glm::normalize(cameraUp);
+    // glm::vec3 U = glm::cross(N, V);
+    // glm::mat4 viewPositionMatrix = glm::mat4({
+    //     {U.x, U.y, U.z, glm::dot(U, cameraPosition)},
+    //     {V.x, V.y, V.z, glm::dot(V, cameraPosition)},
+    //     {-N.x, -N.y, -N.z, glm::dot(N, cameraPosition)},
+    //     {0.0, 0.0, 0.0, 1.0},
+    // });
+    glm::mat4 viewM = glm::lookAt(cameraPosition, cameraFront, cameraUp);
+    glm::mat4 finalMatrix = projectM * viewM * translateM * rotateM * scaleM;
     glUniformMatrix4fv(WVP, 1, GL_FALSE, &finalMatrix[0][0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
     glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
@@ -216,11 +200,11 @@ void KeyboardCB(unsigned char key, int x, int y)
     {
     case 81:
     case 113:
-        cameraAngle -= deltaCameraAngle;
+        // cameraAngle -= deltaCameraAngle;
         break;
     case 69:
     case 101:
-        cameraAngle += deltaCameraAngle;
+        // cameraAngle += deltaCameraAngle;
         break;
     default:
         break;
@@ -373,6 +357,7 @@ int main(int argc, char *argv[])
     CompileShaders();
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
+    glCullFace(GL_BACK);
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
 
