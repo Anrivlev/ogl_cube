@@ -8,8 +8,8 @@
 #include <math.h>
 #include <glm/glm.hpp>
 
-int WINDOW_HEIGHT = 900;
-int WINDOW_WIDTH = 1200;
+int WINDOW_HEIGHT = 300;
+int WINDOW_WIDTH = 400;
 float ASPECT_RATIO = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
 const int x = 100;
 const int y = 50;
@@ -21,6 +21,7 @@ const GLclampf BACKGROUND_ALPHA = 0.0f;
 char VERTEX_SHADER_FILENAME[] = "shader.vs";
 char FRAGMENT_SHADER_FILENAME[] = "shader.fs";
 unsigned int RANDOM_SEED = 42;
+GLfloat FOV = 90.0;
 GLfloat FOV = 90.0;
 GLfloat NEAR_Z = 1.0;
 GLfloat FAR_Z = 10.0;
@@ -62,32 +63,31 @@ GLuint cube_index_data[][3] = {
     {2, 4, 6},
 };
 GLfloat cube_color_data[][3] = {
-    {0.6f, 0.6f, 0.0f},
-    {0.6f, 0.6f, 0.0f},
-    {0.6f, 0.6f, 0.0f},
-    {0.6f, 0.6f, 0.0f},
-    {0.6f, 0.6f, 0.0f},
-    {0.6f, 0.6f, 0.0f},
-    {0.6f, 0.6f, 0.0f},
-    {0.6f, 0.6f, 0.0f},
-    // {0.2f, 0.2f, 0.2f},
-    // {0.2f, 0.2f, 0.8f},
-    // {0.2f, 0.8f, 0.2f},
-    // {0.2f, 0.8f, 0.8f},
-    // {0.8f, 0.2f, 0.2f},
-    // {0.8f, 0.2f, 0.8f},
-    // {0.8f, 0.8f, 0.2f},
-    // {0.8f, 0.8f, 0.8f}
-};
+    // {0.6f, 0.6f, 0.0f},
+    // {0.6f, 0.6f, 0.0f},
+    // {0.6f, 0.6f, 0.0f},
+    // {0.6f, 0.6f, 0.0f},
+    // {0.6f, 0.6f, 0.0f},
+    // {0.6f, 0.6f, 0.0f},
+    // {0.6f, 0.6f, 0.0f},
+    // {0.6f, 0.6f, 0.0f},
+    {0.2f, 0.2f, 0.2f},
+    {0.2f, 0.2f, 0.8f},
+    {0.2f, 0.8f, 0.2f},
+    {0.2f, 0.8f, 0.8f},
+    {0.8f, 0.2f, 0.2f},
+    {0.8f, 0.2f, 0.8f},
+    {0.8f, 0.8f, 0.2f},
+    {0.8f, 0.8f, 0.8f}};
 
 static GLfloat angle = 0.0f;
 static GLfloat deltaAngle = 0.0f;
 static GLfloat deltaDeltaAngle = 0.0001f;
 static GLfloat scale = 1.0f;
 static GLfloat deltaScale = 0.01f;
-static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 3.0f);
+static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 0.4f);
 static GLfloat deltaTranslation = 0.1f;
-static glm::vec3 cameraPosition = glm::vec3(1.0f, 0.0f, 0.0f);
+static glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 static GLfloat deltaCameraPosition = 0.1f;
 static GLfloat cameraAngle = 0.0f;
 static GLfloat deltaCameraAngle = 0.1f;
@@ -374,6 +374,7 @@ int main(int argc, char *argv[])
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
 
     glutMainLoop();
 

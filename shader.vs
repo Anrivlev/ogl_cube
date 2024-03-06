@@ -1,9 +1,9 @@
 #version 330
 
 layout(location = 0) in vec3 in_Position;
-uniform mat4 WVP;
-
 layout(location = 1) in vec3 in_color;
+
+uniform mat4 WVP;
 
 out vec3 color;
 out vec4 position;
