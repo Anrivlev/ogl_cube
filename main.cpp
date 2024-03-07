@@ -23,7 +23,7 @@ static char VERTEX_SHADER_FILENAME[] = "shader.vs";
 static char FRAGMENT_SHADER_FILENAME[] = "shader.fs";
 static unsigned int RANDOM_SEED = 42;
 static GLfloat FOV = 90.0;
-static GLfloat NEAR_Z = 1.0;
+static GLfloat NEAR_Z = 0.1;
 static GLfloat FAR_Z = 10.0;
 
 static GLuint WVP;
@@ -85,7 +85,7 @@ static GLfloat deltaAngle = 0.0f;
 static GLfloat deltaDeltaAngle = 0.0001f;
 static GLfloat scale = 1.0f;
 static GLfloat deltaScale = 0.01f;
-static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 0.0f);
+static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 1.0f);
 static GLfloat deltaTranslation = 0.1f;
 static glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 static GLfloat deltaCameraPosition = 0.1f;
