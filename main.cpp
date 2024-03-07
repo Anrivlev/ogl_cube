@@ -120,13 +120,13 @@ void RenderCB()
     // glm::vec3 N = glm::normalize(cameraFront);
     // glm::vec3 V = glm::normalize(cameraUp);
     // glm::vec3 U = glm::cross(N, V);
-    // glm::mat4 viewPositionMatrix = glm::mat4({
+    // glm::mat4 viewM = glm::mat4({
     //     {U.x, U.y, U.z, glm::dot(U, cameraPosition)},
     //     {V.x, V.y, V.z, glm::dot(V, cameraPosition)},
     //     {-N.x, -N.y, -N.z, glm::dot(N, cameraPosition)},
     //     {0.0, 0.0, 0.0, 1.0},
     // });
-    glm::mat4 viewM = glm::lookAt(cameraPosition, cameraFront, cameraUp);
+    glm::mat4 viewM = glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
     glm::mat4 finalMatrix = projectM * viewM * translateM * rotateM * scaleM;
     glUniformMatrix4fv(WVP, 1, GL_FALSE, &finalMatrix[0][0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
