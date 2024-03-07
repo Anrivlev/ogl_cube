@@ -22,7 +22,7 @@ static const GLclampf BACKGROUND_ALPHA = 0.0f;
 static char VERTEX_SHADER_FILENAME[] = "shader.vs";
 static char FRAGMENT_SHADER_FILENAME[] = "shader.fs";
 static unsigned int RANDOM_SEED = 42;
-static GLfloat FOV = 90.0;
+static GLfloat FOV = 120.0;
 static GLfloat NEAR_Z = 0.1;
 static GLfloat FAR_Z = 10.0;
 
@@ -108,13 +108,13 @@ void RenderCB()
     glm::mat4 scaleM = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
     glm::mat4 translateM = glm::translate(glm::mat4(1.0f), translationVector);
     // GLfloat OneOverTanHalfFov = 1.0 / tanf(FOV * M_PI / 360);
-    // GLfloat A = (FAR_Z + NEAR_Z) / (FAR_Z - NEAR_Z);
-    // GLfloat B = -2 * FAR_Z * NEAR_Z / (FAR_Z - NEAR_Z);
-    // glm::mat4 perspectiveProjectionMatrix = glm::mat4({
+    // GLfloat A = (FAR_Z + NEAR_Z) / (NEAR_Z - FAR_Z);
+    // GLfloat B = 2 * FAR_Z * NEAR_Z / (NEAR_Z - FAR_Z);
+    // glm::mat4 projectM = glm::mat4({
     //     {OneOverTanHalfFov / ASPECT_RATIO, 0.0, 0.0, 0.0},
     //     {0.0, OneOverTanHalfFov, 0.0, 0.0},
     //     {0.0, 0.0, -A, B},
-    //     {0.0, 0.0, -1.0, 0.0},
+    //     {0.0, 0.0, 1.0, 0.0},
     // });
     glm::mat4 projectM = glm::perspectiveFov(FOV * glm::pi<float>() / 180, WINDOW_WIDTH, WINDOW_HEIGHT, NEAR_Z, FAR_Z);
     // glm::vec3 N = glm::normalize(cameraFront);
