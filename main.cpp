@@ -104,9 +104,9 @@ void RenderCB()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
     angle += deltaAngle;
 
-    glm::mat4 rotateM = glm::rotate(glm::mat4(), angle, glm::vec3(0, 1, 0));
-    glm::mat4 scaleM = glm::scale(glm::mat4(), glm::vec3(scale));
-    glm::mat4 translateM = glm::translate(glm::mat4(), translationVector);
+    glm::mat4 rotateM = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0, 1, 0));
+    glm::mat4 scaleM = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
+    glm::mat4 translateM = glm::translate(glm::mat4(1.0f), translationVector);
     // GLfloat OneOverTanHalfFov = 1.0 / tanf(FOV * M_PI / 360);
     // GLfloat A = (FAR_Z + NEAR_Z) / (FAR_Z - NEAR_Z);
     // GLfloat B = -2 * FAR_Z * NEAR_Z / (FAR_Z - NEAR_Z);
