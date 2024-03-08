@@ -85,11 +85,11 @@ static GLfloat deltaAngle = 0.0f;
 static GLfloat deltaDeltaAngle = 0.0001f;
 static GLfloat scale = 1.0f;
 static GLfloat deltaScale = 0.01f;
-static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 1.5f);
+static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, -1.5f);
 static GLfloat deltaTranslation = 0.1f;
 static glm::vec3 cameraPosition = glm::vec3(0.0f, 0.0f, 0.0f);
 static GLfloat deltaCameraPosition = 0.1f;
-static glm::vec3 cameraFront = glm::vec3(0.0, 0.0, 1.0);
+static glm::vec3 cameraFront = glm::vec3(0.0, 0.0, -1.0);
 static glm::vec3 cameraUp = glm::vec3(0.0, 1.0, 0.0);
 
 void RenderCB()
@@ -252,21 +252,6 @@ void SpecialCB(int key, int x, int y)
         switch (modifier)
         {
         case GLUT_ACTIVE_SHIFT:
-            translationVector.x += deltaTranslation;
-            break;
-        case GLUT_ACTIVE_CTRL:
-            break;
-        case GLUT_ACTIVE_ALT:
-            break;
-        default:
-            cameraPosition.x += deltaCameraPosition;
-            break;
-        }
-        break;
-    case GLUT_KEY_RIGHT:
-        switch (modifier)
-        {
-        case GLUT_ACTIVE_SHIFT:
             translationVector.x -= deltaTranslation;
             break;
         case GLUT_ACTIVE_CTRL:
@@ -275,6 +260,21 @@ void SpecialCB(int key, int x, int y)
             break;
         default:
             cameraPosition.x -= deltaCameraPosition;
+            break;
+        }
+        break;
+    case GLUT_KEY_RIGHT:
+        switch (modifier)
+        {
+        case GLUT_ACTIVE_SHIFT:
+            translationVector.x += deltaTranslation;
+            break;
+        case GLUT_ACTIVE_CTRL:
+            break;
+        case GLUT_ACTIVE_ALT:
+            break;
+        default:
+            cameraPosition.x += deltaCameraPosition;
             break;
         }
         break;
