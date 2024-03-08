@@ -252,21 +252,6 @@ void SpecialCB(int key, int x, int y)
         switch (modifier)
         {
         case GLUT_ACTIVE_SHIFT:
-            translationVector.x -= deltaTranslation;
-            break;
-        case GLUT_ACTIVE_CTRL:
-            break;
-        case GLUT_ACTIVE_ALT:
-            break;
-        default:
-            cameraPosition.x -= deltaCameraPosition;
-            break;
-        }
-        break;
-    case GLUT_KEY_RIGHT:
-        switch (modifier)
-        {
-        case GLUT_ACTIVE_SHIFT:
             translationVector.x += deltaTranslation;
             break;
         case GLUT_ACTIVE_CTRL:
@@ -275,6 +260,21 @@ void SpecialCB(int key, int x, int y)
             break;
         default:
             cameraPosition.x += deltaCameraPosition;
+            break;
+        }
+        break;
+    case GLUT_KEY_RIGHT:
+        switch (modifier)
+        {
+        case GLUT_ACTIVE_SHIFT:
+            translationVector.x -= deltaTranslation;
+            break;
+        case GLUT_ACTIVE_CTRL:
+            break;
+        case GLUT_ACTIVE_ALT:
+            break;
+        default:
+            cameraPosition.x -= deltaCameraPosition;
             break;
         }
         break;
