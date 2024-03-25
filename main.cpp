@@ -89,13 +89,13 @@ static GLfloat cube_color_data[][3] = {
 
 static GLfloat cube_texture_data[][2] = {
     {0.0f, 0.0f},
-    {0.0f, 1.0f},
     {1.0f, 1.0f},
+    {0.0f, 1.0f},
+    {1.0f, 0.0f},
+    {1.0f, 1.0f},
+    {0.0f, 1.0f},
     {1.0f, 0.0f},
     {0.0f, 0.0f},
-    {0.0f, 1.0f},
-    {1.0f, 1.0f},
-    {1.0f, 0.0f},
 };
 
 static GLfloat angle = 0.0f;
@@ -150,7 +150,7 @@ void RenderCB()
     glm::mat4 viewM = glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
     glm::mat4 finalMatrix = projectM * viewM * translateM * rotateM * scaleM;
     glUniformMatrix4fv(WVP, 1, GL_FALSE, &finalMatrix[0][0]);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO); 
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
@@ -389,13 +389,16 @@ int main(int argc, char *argv[])
     glBindTexture(GL_TEXTURE_2D, texture);
 
     textureData = stbi_load("container.jpg", &textureWidth, &textureHeight, &textureNrChannels, 0);
-    if (textureData) {
+    if (textureData)
+    {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textureWidth, textureHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, textureData);
         glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
+    }
+    else
+    {
         std::cout << "Failed to load texture" << std::endl;
     }
-    
+
     stbi_image_free(textureData);
 
     CreateBuffers();
