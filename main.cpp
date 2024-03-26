@@ -12,6 +12,7 @@
 #include "include/stb_image.h"
 #include "include/ShaderProgram.hpp"
 #include "include/Texture.hpp"
+#include "include/CameraAndView.hpp"
 
 static float WINDOW_HEIGHT = 600.0;
 static float WINDOW_WIDTH = 800.0;
@@ -26,9 +27,8 @@ static const GLclampf BACKGROUND_ALPHA = 0.0f;
 static std::string VERTEX_SHADER_FILENAME = "shaders/shader.vs";
 static std::string FRAGMENT_SHADER_FILENAME = "shaders/shader.fs";
 static std::string WOODEN_CRATE_TEXTURE_FILENAME = "resources/container.jpg";
-static unsigned int RANDOM_SEED = 42;
 static GLfloat FOV = 90.0;
-static GLfloat NEAR_Z = 0.0;
+static GLfloat NEAR_Z = 0.1;
 static GLfloat FAR_Z = 100.0;
 
 static GLuint WVP;
@@ -38,7 +38,6 @@ static GLuint cubeIBO;
 static GLuint cubeTBO;
 static Texture *texture;
 static int textureWidth, textureHeight, textureNrChannels;
-
 
 static GLfloat cube_vertex_data[][3] = {
     {-0.5f, -0.5f, -0.5f},
@@ -106,12 +105,12 @@ static GLfloat deltaAngle = 0.0f;
 static GLfloat deltaDeltaAngle = 0.0001f;
 static GLfloat scale = 1.0f;
 static GLfloat deltaScale = 0.01f;
-static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, -1.5f);
+static glm::vec3 translationVector = glm::vec3(0.0f, 0.0f, 1.5f);
 static GLfloat deltaTranslation = 0.1f;
-static glm::vec3 sceneCenter = glm::vec3(0.0f, 0.0f, 0.0f);
 static GLfloat deltaCameraPosition = 0.1f;
-static glm::vec3 cameraPosition = glm::vec3(0.0, 0.0, -1.0);
+static glm::vec3 cameraPosition = glm::vec3(0.0, 0.0, 1.0);
 static glm::vec3 cameraUp = glm::vec3(0.0, 1.0, 0.0);
+static CameraAndView *cameraAndView = new CameraAndView(WINDOW_WIDTH, WINDOW_HEIGHT, FOV, NEAR_Z, FAR_Z);
 
 void RenderCB()
 {
@@ -134,13 +133,13 @@ void RenderCB()
     glm::mat4 scaleM = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
     glm::mat4 translateM = glm::translate(glm::mat4(1.0f), translationVector);
     glm::mat4 projectM = glm::perspectiveFov(FOV * glm::pi<float>() / 180, WINDOW_WIDTH, WINDOW_HEIGHT, NEAR_Z, FAR_Z);
-    glm::mat4 viewM = glm::lookAt(sceneCenter, sceneCenter + cameraPosition, cameraUp);
+    glm::mat4 viewM = glm::lookAt(cameraAndView->camera.position_, cameraAndView->sceneCenter, cameraUp);
+    // glm::mat4 projectM = cameraAndView->ProjectionMat();
+    // glm::mat4 viewM = cameraAndView->CameraMat();
     glm::mat4 finalMatrix = projectM * viewM * translateM * rotateM * scaleM;
 
     glUniformMatrix4fv(WVP, 1, GL_FALSE, &finalMatrix[0][0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cubeIBO);
-    // glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_2D, texture);
     texture->Bind(GL_TEXTURE0);
     glDrawElements(GL_TRIANGLES, (sizeof(cube_index_data) / sizeof(GLuint)), GL_UNSIGNED_INT, 0);
     glDisableVertexAttribArray(0);
@@ -151,90 +150,12 @@ void RenderCB()
     glutSwapBuffers();
 }
 
-void KeyboardCB(unsigned char key, int x, int y)
-{
-    switch (key)
-    {
-    case 81:
-    case 113:
-        // cameraAngle -= deltaCameraAngle;
-        break;
-    case 69:
-    case 101:
-        // cameraAngle += deltaCameraAngle;
-        break;
-    default:
-        break;
-    }
-}
-
 void SpecialCB(int key, int x, int y)
 {
+    cameraAndView->OnSpecialKeyboard(key, x, y);
     int modifier = glutGetModifiers();
     switch (key)
     {
-    case GLUT_KEY_UP:
-        switch (modifier)
-        {
-        case GLUT_ACTIVE_SHIFT:
-            translationVector.y += deltaTranslation;
-            break;
-        case GLUT_ACTIVE_CTRL:
-            break;
-        case GLUT_ACTIVE_ALT:
-            translationVector.z += deltaTranslation;
-            break;
-        default:
-            sceneCenter.z -= deltaCameraPosition;
-            break;
-        }
-        break;
-    case GLUT_KEY_DOWN:
-        switch (modifier)
-        {
-        case GLUT_ACTIVE_SHIFT:
-            translationVector.y -= deltaTranslation;
-            break;
-        case GLUT_ACTIVE_CTRL:
-            break;
-        case GLUT_ACTIVE_ALT:
-            translationVector.z -= deltaTranslation;
-            break;
-        default:
-            sceneCenter.z += deltaCameraPosition;
-            break;
-        }
-        break;
-    case GLUT_KEY_LEFT:
-        switch (modifier)
-        {
-        case GLUT_ACTIVE_SHIFT:
-            translationVector.x -= deltaTranslation;
-            break;
-        case GLUT_ACTIVE_CTRL:
-            break;
-        case GLUT_ACTIVE_ALT:
-            break;
-        default:
-            sceneCenter.x -= deltaCameraPosition;
-            break;
-        }
-        break;
-    case GLUT_KEY_RIGHT:
-        switch (modifier)
-        {
-        case GLUT_ACTIVE_SHIFT:
-            translationVector.x += deltaTranslation;
-            break;
-        case GLUT_ACTIVE_CTRL:
-            break;
-        case GLUT_ACTIVE_ALT:
-            break;
-        default:
-            sceneCenter.x += deltaCameraPosition;
-            break;
-        }
-        break;
     case GLUT_KEY_PAGE_UP:
         switch (modifier)
         {
@@ -270,6 +191,21 @@ void SpecialCB(int key, int x, int y)
     }
 }
 
+void MouseCB(int button, int state, int x, int y)
+{
+    cameraAndView->OnMouse(button, state, x, y);
+}
+
+void MouseActiveMoveCB(int x, int y)
+{
+    cameraAndView->OnMouseActiveMove(x, y);
+}
+
+void MouseWheelCB(int button, int dir, int x, int y)
+{
+    cameraAndView->OnMouseWheel(button, dir, x, y);
+}
+
 void CreateBuffers()
 {
     glGenBuffers(1, &cubeVBO);
@@ -291,8 +227,6 @@ void CreateBuffers()
 
 int main(int argc, char *argv[])
 {
-    srandom(RANDOM_SEED);
-
     glutInit(&argc, argv);
     // glutInitContextVersion(3, 3);
     // glutInitContextProfile(GLUT_CORE_PROFILE);
@@ -304,8 +238,11 @@ int main(int argc, char *argv[])
     glutSetCursor(GLUT_CURSOR_CROSSHAIR);
 
     glutDisplayFunc(RenderCB);
-    glutKeyboardFunc(KeyboardCB);
+    // glutKeyboardFunc(KeyboardCB);
     glutSpecialFunc(SpecialCB);
+    glutMouseFunc(MouseCB);
+    glutMouseWheelFunc(MouseWheelCB);
+    glutMotionFunc(MouseActiveMoveCB);
 
     glewExperimental = true;
     if (glewInit() != GLEW_OK)
